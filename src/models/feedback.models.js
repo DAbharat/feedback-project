@@ -1,8 +1,14 @@
 import mongoose from "mongoose";
 
 const feedbackSchema = new mongoose.Schema({
-    studentName: {
-        type: String,
+    studentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    teacherId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
     course: {

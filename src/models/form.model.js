@@ -8,14 +8,11 @@ const formSchema = new mongoose.Schema({
   description: {
     type: String
   },
-  teacherName: {
-    type: String,
+  teacherId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true
-  },
-  teacherSubject: {
-    type: String,
-    required: true
-  },
+  } ,
   questions: [
     {
       text: {
