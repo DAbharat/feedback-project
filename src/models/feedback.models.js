@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const feedbackSchema = new mongoose.Schema({
     studentId: {
@@ -58,4 +59,5 @@ const feedbackSchema = new mongoose.Schema({
     }
 );
 
+feedbackSchema.plugin(mongooseAggregatePaginate);
 export const Feedback = mongoose.model("Feedback", feedbackSchema);

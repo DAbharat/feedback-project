@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const formResponseSchema = new mongoose.Schema({
     formId: {
@@ -35,5 +36,5 @@ const formResponseSchema = new mongoose.Schema({
 );
 
 formResponseSchema.index({ formId: 1, studentId: 1 }, { unique: true });
-
+formResponseSchema.plugin(mongooseAggregatePaginate);
 export const FormResponse = mongoose.model("FormResponse", formResponseSchema)
