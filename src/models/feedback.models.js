@@ -40,7 +40,7 @@ const feedbackSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    identityCardUrl: {
+    idCardUrl: {
         type: String,
         required: true
     },
