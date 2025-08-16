@@ -1,1 +1,1 @@
-export const DB_NAME = "feedbackapp"
+export const DB_NAME = "feedbackproject"

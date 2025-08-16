@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema(
             required: true,
             index: true
         },
+        fullName: {
+            type:String,
+            required: true
+        },
         email: {
             type: String,
             required: true,
@@ -24,6 +28,9 @@ const userSchema = new mongoose.Schema(
         idCard: {
             type: String,
             required: true
+        },
+        profileImage: {
+            type: String
         },
         role: {
             type: String,

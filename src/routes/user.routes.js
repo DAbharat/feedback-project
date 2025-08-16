@@ -11,6 +11,10 @@ router.route("/register").post(
         {
             name: "idCard",
             maxCount: 1
+        },
+        {
+            name: "profileImage",
+            maxCount: 1
         }
     ]), registerUser
 )
