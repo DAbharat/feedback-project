@@ -1,12 +1,22 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 import { getNotificationsForUser, markNotificationRead, sendNotification } from "../controllers/notification.controller.js";
+import { isAdmin, isTeacherOrAdmin } from "../middlewares/role.middlewares.js";
+import { ApiError } from "../utils/ApiError.js";
 
 const router = Router();
 
-router.route("/sendnotification").post(verifyJWT, sendNotification);
-router.route("/notifications/:userId").get(verifyJWT, getNotificationsForUser);
-router.route("/notification-read/:notificationId").post(verifyJWT, markNotificationRead);
+const isRecipient = (req, res, next) => {
+    if (req.user?._id.toString() === req.params.userId) {
+        return next();
+    }
+    return next(new ApiError(403, "Access denied: not the recipient"));
+};
+
+router.route("/sendnotification").post(verifyJWT, isTeacherOrAdmin, sendNotification);
+router.route("/notifications/:userId").get(verifyJWT, isRecipient, getNotificationsForUser);
+router.route("/notification-read/:notificationId").post(verifyJWT, isRecipient, markNotificationRead);
+router.route("/notification-delete/:notificationId").delete(verifyJWT, isRecipient || isAdmin, deleteNotification);
 
 
 export default router;

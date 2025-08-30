@@ -20,15 +20,31 @@ const getNotificationsForUser = asyncHandler(async (req, res) => {
 });
 
 const markNotificationRead = asyncHandler(async (req, res) => {
-	const { id } = req.params;
-	const notification = await Notification.findByIdAndUpdate(id, { isRead: true }, { new: true });
-	if (!notification) throw new ApiError(404, "Notification not found");
-	res.json(new ApiResponse(200, notification, "Notification marked as read"));
+    const { notificationId } = req.params;
+    const notification = await Notification.findById(notificationId);
+    if (!notification) throw new ApiError(404, "Notification not found");
+    if (notification.recipient.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "Access denied: not the recipient");
+    }
+    notification.isRead = true;
+    await notification.save();
+    res.json(new ApiResponse(200, notification, "Notification marked as read"));
 });
 
+const deleteNotification = asyncHandler(async (req, res) => {
+    const { notificationId } = req.params;
+    const notification = await Notification.findById(notificationId);
+    if (!notification) throw new ApiError(404, "Notification not found");
+    if (notification.recipient.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "Access denied: not the recipient");
+    }
+    await notification.remove();
+    res.json(new ApiResponse(200, null, "Notification deleted"));
+});
 
 export {
 	sendNotification,
 	getNotificationsForUser,
-	markNotificationRead
+	markNotificationRead,
+	deleteNotification
 }
