@@ -21,8 +21,18 @@ const isStudent = (req, res, next) => {
     next();
 };
 
+const isTeacherOrAdmin = (req, res, next) => {
+	if (req.user?.role === "teacher" || req.user?.role === "admin") {
+		return next();
+	}
+    else {
+        throw new ApiError(403, "Teacher or admin access required");
+    }
+};
+
 export {
     isAdmin,
     isTeacher,
-    isStudent
+    isStudent,
+    isTeacherOrAdmin
 }

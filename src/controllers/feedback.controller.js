@@ -144,13 +144,6 @@ const getFeedbackByStatus = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, feedbacks, `Feedbacks with status: ${status}`));
 });
 
-const isTeacherOrAdmin = (req, res, next) => {
-    if (req.user?.role === "teacher" || req.user?.role === "admin") {
-        return next();
-    }
-    return next(new ApiError(403, "Teacher or admin access required"));
-};
-
 
 
 export {
@@ -159,5 +152,5 @@ export {
     getFeedbackTrends,
     getTopKeywords,
     getFeedbackByStatus,
-    isTeacherOrAdmin // Export for use in routes
+    isTeacherOrAdmin 
 }
