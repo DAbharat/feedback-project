@@ -2,32 +2,32 @@ import { ApiError } from "../utils/ApiError.js";
 
 const isAdmin = (req, res, next) => {
     if (req.user?.role !== "admin") {
-        return next(new ApiError(403, "Admin access required"));
+        throw new ApiError(403, "Admin access required");
     }
     next();
 };
 
 const isTeacher = (req, res, next) => {
     if (req.user?.role !== "teacher") {
-        return next(new ApiError(403, "Teacher access required"));
+        throw new ApiError(403, "Teacher access required");
     }
     next();
 };
 
 const isStudent = (req, res, next) => {
     if (req.user?.role !== "student") {
-        return next(new ApiError(403, "Student access required"));
+        throw new ApiError(403, "Student access required");
     }
     next();
 };
 
 const isTeacherOrAdmin = (req, res, next) => {
-	if (req.user?.role === "teacher" || req.user?.role === "admin") {
-		return next();
-	}
-    else {
-        throw new ApiError(403, "Teacher or admin access required");
+    if (req.user?.role === "teacher" || req.user?.role === "admin") {
+        next();
     }
+    else {    
+        throw new ApiError(403, "Teacher or admin access required");
+    } 
 };
 
 export {

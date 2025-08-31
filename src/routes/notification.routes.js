@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
-import { getNotificationsForUser, markNotificationRead, sendNotification } from "../controllers/notification.controller.js";
+import { deleteNotification, getNotificationsForUser, markNotificationRead, sendNotification } from "../controllers/notification.controller.js";
 import { isAdmin, isTeacherOrAdmin } from "../middlewares/role.middlewares.js";
 import { ApiError } from "../utils/ApiError.js";
 

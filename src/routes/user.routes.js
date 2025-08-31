@@ -1,30 +1,88 @@
 import { Router } from "express";
-import { registerUser, loginUser, logoutUser, updateUserProfileImage, changeCurrentPassword, getCurrentUser, updateAccountDetails } from "../controllers/user.controller.js";
+import { body, validationResult } from "express-validator";
+import { registerUser, loginUser, logoutUser, updateUserProfileImage, changeCurrentPassword, getCurrentUser, updateAccountDetails, refreshAccessToken } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 
 
 const router = Router();
 
-router.route("/register").post(
-    upload.fields([
-        {
-            name: "idCard",
-            maxCount: 1
-        },
-        {
-            name: "profileImage",
-            maxCount: 1
+const validate = (validations) => [
+    ...validations,
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
-    ]), registerUser
-)
+        next();
+    }
+];
 
-router.route("/login").post(loginUser)
-router.route("/refresh-token").post(refreshToken)
-router.route("/change-password").post(verifyJWT, changeCurrentPassword)
-router.route("/update-profile-image").patch(verifyJWT, upload.single("profileImage"), updateUserProfileImage)
-router.route("/current-user").get(verifyJWT, getCurrentUser)
-router.route("/update-details").patch(verifyJWT, updateAccountDetails)
-router.route("/logout").post(verifyJWT, logoutUser)
+router.route("/register").post(
+    (req, res, next) => {
+        upload.fields([
+            { name: "idCard", maxCount: 1 },
+            { name: "profileImage", maxCount: 1 }
+        ])(req, res, function (err) {
+            if (err) {
+                console.log("Multer error:", err);
+                return res.status(400).json({ error: err.message });
+            }
+            next();
+        });
+    },
+    validate([
+        body("email").isEmail().withMessage("Valid email is required"),
+        body("password")
+            .isLength({ min: 8 }).withMessage("Password must be at least 8 characters")
+            .matches(/[A-Z]/).withMessage("Password must contain an uppercase letter")
+            .matches(/[a-z]/).withMessage("Password must contain a lowercase letter")
+            .matches(/[0-9]/).withMessage("Password must contain a digit")
+            .matches(/[^A-Za-z0-9]/).withMessage("Password must contain a special character"),
+        body("username").notEmpty().withMessage("Username is required"),
+        body("fullName").notEmpty().withMessage("Full name is required"),
+        body("role").optional().isIn(["student", "teacher", "admin"]).withMessage("Role must be student, teacher, or admin")
+    ]),
 
-export default router
+    registerUser
+);
+
+router.route("/login").post(
+    validate([
+        body("email").isEmail().withMessage("Valid email is required"),
+        body("password").notEmpty().withMessage("Password is required")
+    ]),
+    loginUser
+);
+
+router.route("/refresh-token").post(refreshAccessToken);
+
+router.route("/change-password").post(
+    verifyJWT,
+    validate([
+        body("oldPassword").isLength({ min: 8 }).withMessage("Old password must be at least 8 characters"),
+        body("newPassword").isLength({ min: 8 }).withMessage("Password must be at least 8 characters")
+            .matches(/[A-Z]/).withMessage("Password must contain an uppercase letter")
+            .matches(/[a-z]/).withMessage("Password must contain a lowercase letter")
+            .matches(/[0-9]/).withMessage("Password must contain a digit")
+            .matches(/[^A-Za-z0-9]/).withMessage("Password must contain a special character")
+    ]),
+    changeCurrentPassword
+);
+
+router.route("/update-profile-image").patch(verifyJWT, upload.single("profileImage"), updateUserProfileImage);
+
+router.route("/current-user").get(verifyJWT, getCurrentUser);
+
+router.route("/update-details").patch(
+    verifyJWT,
+    validate([
+        body("email").optional().isEmail().withMessage("Valid email is required"),
+        body("username").optional().notEmpty().withMessage("Username cannot be empty")
+    ]),
+    updateAccountDetails
+);
+
+router.route("/logout").post(verifyJWT, logoutUser);
+
+export default router;

@@ -26,7 +26,8 @@ const generateAccessAndRefreshToken = async (userId) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
-    // Trim all string fields and set default role
+    console.log("req.files:", req.files);
+console.log("req.body:", req.body);
     const username = req.body.username?.trim();
     const fullName = req.body.fullName?.trim();
     const email = req.body.email?.trim();
@@ -225,68 +226,73 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 })
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
-    const { oldPassword, newPassword }  = req.body
+    const { oldPassword, newPassword } = req.body
 
     const user = await User.findById(req.user?._id)
 
-    if(!user) {
+    if (!user) {
         throw new ApiError(404, "User not found")
     }
 
     const isPasswordValid = await user.isPasswordCorrect(oldPassword)
 
-    if(!isPasswordValid) {
+    if (!isPasswordValid) {
         throw new ApiError(400, "Invalid old password")
     }
 
     user.password = newPassword
-    await user.save({ validateBeforeSave: false})
+    await user.save({ validateBeforeSave: false })
 
     return res
-    .status(200)
-    .json(new ApiResponse(200, {}, "Password changed successfully"))
+        .status(200)
+        .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
 
 const getCurrentUser = asyncHandler(async (req, res) => {
     return res
-    .status(200)
-    .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
+        .status(200)
+        .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
 })
 
-const updateAccountDetails = asyncHandler(async(req,res) => {
-    const { email, username } = req.body
-    if(!(email || username)) {
-        throw new ApiError(400, "Email or username is required")
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { email, username } = req.body;
+    if (!(email || username)) {
+        throw new ApiError(400, "Email or username is required");
+    }
+
+    if (email) {
+        const existingEmail = await User.findOne({ email, _id: { $ne: req.user._id } });
+        if (existingEmail) {
+            throw new ApiError(400, "Email already in use");
+        }
+    }
+
+    if (username) {
+        const existingUsername = await User.findOne({ username, _id: { $ne: req.user._id } });
+        if (existingUsername) {
+            throw new ApiError(400, "Username already in use");
+        }
     }
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
-        {
-            $set: {
-                email,
-                username
-            }
-        },
-        {
-            new: true
-        }
-    ).select("-password -refreshToken")
+        { $set: { email, username } },
+        { new: true }
+    ).select("-password -refreshToken");
 
-    return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Account details updated successfully"))
-})
+    return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
+});
 
 const updateUserProfileImage = asyncHandler(async (req, res) => {
     const profileImageLocalPath = req.file?.path
 
-    if(!profileImageLocalPath) {
+    if (!profileImageLocalPath) {
         throw new ApiError(400, "Profile image is required");
     }
 
     const profileImage = await uploadOnCloudinary(profileImageLocalPath)
 
-    if(!profileImage.url) {
+    if (!profileImage.url) {
         throw new ApiError(500, "Something went wrong while uploading the profile image");
     }
 
@@ -302,13 +308,13 @@ const updateUserProfileImage = asyncHandler(async (req, res) => {
         }
     ).select("-password -refreshToken")
 
-    if(!user) {
+    if (!user) {
         throw new ApiError(404, "User not found");
     }
 
     return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Profile image updated successfully"));
+        .status(200)
+        .json(new ApiResponse(200, user, "Profile image updated successfully"));
 })
 
 

@@ -151,6 +151,5 @@ export {
     getFeedbackStats,
     getFeedbackTrends,
     getTopKeywords,
-    getFeedbackByStatus,
-    isTeacherOrAdmin 
+    getFeedbackByStatus
 }
