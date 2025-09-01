@@ -4,6 +4,7 @@ import { User } from "../models/user.models.js";
 import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import logger from "../utils/logger.js";
 
 
 const generateAccessAndRefreshToken = async (userId) => {
@@ -26,8 +27,8 @@ const generateAccessAndRefreshToken = async (userId) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
-    console.log("req.files:", req.files);
-console.log("req.body:", req.body);
+    //console.log("req.files:", req.files);
+    //console.log("req.body:", req.body);
     const username = req.body.username?.trim();
     const fullName = req.body.fullName?.trim();
     const email = req.body.email?.trim();
@@ -89,7 +90,7 @@ console.log("req.body:", req.body);
         });
 
         const createdUser = await User.findById(user._id).select("-password -refreshToken");
-
+        logger.info(`User registered: ${user.email}`);
         if (!createdUser) {
             throw new ApiError(500, "Something went wrong");
         }
@@ -132,7 +133,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
-
+    logger.info(`User logged in: ${user.email}`);
     if (!loggedInUser) {
         throw new ApiError(400, "Login is required")
     }
@@ -166,7 +167,7 @@ const logoutUser = asyncHandler(async (req, res) => {
             new: true
         }
     )
-
+    logger.info(`User logged out: ${req.user.email}`);
     const options = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production"
@@ -242,7 +243,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
     user.password = newPassword
     await user.save({ validateBeforeSave: false })
-
+    logger.info(`User password changed: ${req.user.email}`);
     return res
         .status(200)
         .json(new ApiResponse(200, {}, "Password changed successfully"))
@@ -279,7 +280,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         { $set: { email, username } },
         { new: true }
     ).select("-password -refreshToken");
-
+    logger.info(`User account details updated: ${req.user.email}`);
     return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
 });
 
@@ -307,7 +308,7 @@ const updateUserProfileImage = asyncHandler(async (req, res) => {
             new: true
         }
     ).select("-password -refreshToken")
-
+    logger.info(`User profile image updated: ${req.user.email}`);
     if (!user) {
         throw new ApiError(404, "User not found");
     }

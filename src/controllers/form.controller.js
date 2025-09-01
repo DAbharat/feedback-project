@@ -20,12 +20,26 @@ const createForm = asyncHandler(async (req, res) => {
         isActive: isActive ?? false,
         createdBy: (teacherId || adminId)
     });
+    logger.info(`Form created: ${form.id}`);
     res.status(201).json(new ApiResponse(201, form, "Form created successfully"));
 });
 
 const getAllForms = asyncHandler(async (req, res) => {
-    const forms = await Form.find();
-    res.json(new ApiResponse(200, forms, "All forms"));
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const forms = await Form.find().skip(skip).limit(limit);
+    const total = await Form.countDocuments();
+
+    res.json({
+        success: true,
+        data: forms,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total
+    });
 });
 
 const getFormById = asyncHandler(async (req, res) => {
@@ -38,6 +52,7 @@ const getFormById = asyncHandler(async (req, res) => {
 const updateForm = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
+    logger.info(`Updating form ${id} with data: ${JSON.stringify(updates)}`);
     if (req.user?.role === "teacher" || req.user?.role === "admin") {
         const form = await Form.findByIdAndUpdate(id, updates, { new: true });
         if (!form) throw new ApiError(404, "Form not found");
@@ -51,6 +66,7 @@ const deleteForm = asyncHandler(async (req, res) => {
     const { id } = req.params;
     if (req.user?.role === "teacher" || req.user?.role === "admin") {
         const form = await Form.findByIdAndDelete(id);
+        logger.info(`Form deleted: ${form.id}`);
         if (!form) throw new ApiError(404, "Form not found");
         res.json(new ApiResponse(200, {}, "Form deleted"));
     } else {
@@ -61,7 +77,7 @@ const deleteForm = asyncHandler(async (req, res) => {
 const toggleFormActive = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { isActive } = req.body;
-    if(req.user?.role === "teacher" || req.user?.role === "admin") {
+    if (req.user?.role === "teacher" || req.user?.role === "admin") {
         const form = await Form.findByIdAndUpdate(id, { isActive }, { new: true });
         if (!form) throw new ApiError(404, "Form not found");
         res.json(new ApiResponse(200, form, `Form ${isActive ? "activated" : "deactivated"}`));

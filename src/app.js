@@ -4,10 +4,11 @@ import cookieParser from "cookie-parser";
 import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
 import morgan from "morgan";
+import logger from "./utils/logger.js";
+
 
 const app = express();
-
-app.use(morgan("dev"));
+logger.info("App started");
 
 const rateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -37,17 +38,19 @@ app.use(express.urlencoded({
 app.use(express.static("public"))
 app.use(cookieParser())
 
-app.use((err, req, res, next) => {
-  const status = err.statusCode || 500;
-  const message = process.env.NODE_ENV === "production"
-    ? "Internal server error"
-    : err.message || "Internal server error";
-  res.status(status).json({
-    success: false,
-    message,
-    ...(process.env.NODE_ENV !== "production" && { stack: err.stack })
-  });
-});
+app.use(morgan(morganFormat, {
+  stream: {
+    write: (message) => {
+      const logObject = {
+        method: message.split(' ')[0],
+        url: message.split(' ')[1],
+        status: message.split(' ')[2],
+        responseTime: message.split(' ')[3]
+      };
+      logger.info(JSON.stringify(logObject));
+    }
+  }
+}))
 
 //importing routes
 import healthcheckRouter from "./routes/healthcheck.routes.js"
