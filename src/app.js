@@ -27,7 +27,7 @@ app.use(
 )
 
 app.use(express.json({
-    limit: "16kb"
+    limit: "1064kb"
 }))
 
 app.use(express.urlencoded({
@@ -37,6 +37,8 @@ app.use(express.urlencoded({
 
 app.use(express.static("public"))
 app.use(cookieParser())
+
+const morganFormat = ":method :url :status :response-time ms";
 
 app.use(morgan(morganFormat, {
   stream: {

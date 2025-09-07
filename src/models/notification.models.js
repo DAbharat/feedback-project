@@ -23,6 +23,10 @@ const notificationSchema = new mongoose.Schema({
     type: String,
     enum: ["Feedback", "Form"]
   },
+  sent: {
+    type: Boolean,
+    default: false
+  },
   isRead: {
     type: Boolean,
     default: false
