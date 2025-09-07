@@ -14,7 +14,7 @@ const isRecipient = (req, res, next) => {
 };
 
 router.route("/sendnotification").post(verifyJWT, isTeacherOrAdmin, sendNotification);
-router.route("/notifications/:userId").get(verifyJWT, isRecipient, getNotificationsForUser);
+router.route("/:userId").get(verifyJWT, isRecipient, getNotificationsForUser);
 router.route("/notification-read/:notificationId").post(verifyJWT, isRecipient, markNotificationRead);
 router.route("/notification-delete/:notificationId").delete(verifyJWT, isRecipient, deleteNotification);
 

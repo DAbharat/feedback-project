@@ -7,6 +7,7 @@ import SubmissionPage from "./pages/SubmissionPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage.jsx";
+import NotificationPage from "./pages/NotificationPage.jsx";
 import Navbar from "./components/common/Navbar.jsx";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/notifications" element={<NotificationPage />} />
         </Routes>
       </Layout>
     </Router>
