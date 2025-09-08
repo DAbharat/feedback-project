@@ -3,6 +3,8 @@ import { body, validationResult } from "express-validator";
 import { registerUser, loginUser, logoutUser, updateUserProfileImage, changeCurrentPassword, getCurrentUser, updateAccountDetails, refreshAccessToken } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
+import { isAdmin } from "../middlewares/role.middlewares.js";
+import { makeUserAdmin, getAllTeachers } from "../controllers/user.controller.js";
 
 
 const router = Router();
@@ -28,6 +30,8 @@ router.route("/register").post(
                 console.log("Multer error:", err);
                 return res.status(400).json({ error: err.message });
             }
+            console.log("req.body:", req.body);
+            console.log("req.files:", req.files);
             next();
         });
     },
@@ -82,6 +86,10 @@ router.route("/update-details").patch(
     ]),
     updateAccountDetails
 );
+
+router.route("/teachers").get(verifyJWT, isAdmin, getAllTeachers);
+
+router.route("/make-admin/:userId").post(verifyJWT, isAdmin, makeUserAdmin);
 
 router.route("/logout").post(verifyJWT, logoutUser);
 

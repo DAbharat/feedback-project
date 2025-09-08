@@ -8,7 +8,7 @@ function RegisterPage() {
     fullName: "",
     email: "",
     password: "",
-    role: "student", // default to student
+    role: "student", 
     section: "",
     course: "",
     semester: "",
@@ -30,7 +30,6 @@ function RegisterPage() {
     e.preventDefault();
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => {
-      // Only send extra fields if role is student
       if (form.role !== "student" && ["section", "course", "semester"].includes(key)) return;
       formData.append(key, value);
     });

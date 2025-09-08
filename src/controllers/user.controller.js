@@ -27,8 +27,8 @@ const generateAccessAndRefreshToken = async (userId) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
-    //console.log("req.files:", req.files);
-    //console.log("req.body:", req.body);
+    console.log("req.files:", req.files);
+    console.log("req.body:", req.body);
     const username = req.body.username?.trim();
     const fullName = req.body.fullName?.trim();
     const email = req.body.email?.trim();
@@ -318,7 +318,25 @@ const updateUserProfileImage = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, user, "Profile image updated successfully"));
 })
 
+const getAllTeachers = asyncHandler(async (req, res) => {
+    const teachers = await User.find({
+        role: "teacher"
+    }).select("-password -refreshToken");
+    return res.status(200).json(new ApiResponse(200, teachers, "All teachers fetched successfully"));
+});
 
+const makeUserAdmin = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+    const user = await User.findByIdAndUpdate(
+        userId,
+        { $set: { role: "admin" } },
+        { new: true }
+    ).select("-password -refreshToken");
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    return res.status(200).json(new ApiResponse(200, user, "User promoted to admin"));
+});
 
 export {
     registerUser,
@@ -328,5 +346,7 @@ export {
     updateUserProfileImage,
     changeCurrentPassword,
     getCurrentUser,
-    updateAccountDetails
+    updateAccountDetails,
+    getAllTeachers,
+    makeUserAdmin
 }
