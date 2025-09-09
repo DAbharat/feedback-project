@@ -4,7 +4,7 @@ import { registerUser, loginUser, logoutUser, updateUserProfileImage, changeCurr
 import { upload } from "../middlewares/multer.middlewares.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 import { isAdmin } from "../middlewares/role.middlewares.js";
-import { makeUserAdmin, getAllTeachers } from "../controllers/user.controller.js";
+import { makeUserAdmin, getAllTeachers, getAllUsers, demoteAdmin } from "../controllers/user.controller.js";
 
 
 const router = Router();
@@ -87,9 +87,12 @@ router.route("/update-details").patch(
     updateAccountDetails
 );
 
+router.route("/all-users").get(verifyJWT, isAdmin, getAllUsers);
+
 router.route("/teachers").get(verifyJWT, isAdmin, getAllTeachers);
 
-router.route("/make-admin/:userId").post(verifyJWT, isAdmin, makeUserAdmin);
+router.route("/make-admin/:userId").patch(verifyJWT, isAdmin, makeUserAdmin);
+router.route("/demote/:userId").patch(verifyJWT, isAdmin, demoteAdmin);
 
 router.route("/logout").post(verifyJWT, logoutUser);
 

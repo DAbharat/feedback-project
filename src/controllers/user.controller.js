@@ -338,6 +338,33 @@ const makeUserAdmin = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, user, "User promoted to admin"));
 });
 
+const getAllUsers = asyncHandler(async (req, res) => {
+  const { role, search } = req.query;
+  let filter = {};
+  if (role) filter.role = role;
+  if (search) {
+    filter.$or = [
+      { fullName: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+      { username: { $regex: search, $options: "i" } }
+    ];
+  }
+  const users = await User.find(filter).select("-password -refreshToken");
+  return res.status(200).json(new ApiResponse(200, users, "All users fetched successfully"));
+});
+
+const demoteAdmin = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const user = await User.findById(userId);
+  if (!user) throw new ApiError(404, "User not found");
+  if (user.role !== "admin") throw new ApiError(400, "Only admins can be demoted");
+
+  user.role = "teacher"; 
+  await user.save({ validateBeforeSave: false });
+
+  return res.status(200).json(new ApiResponse(200, user, "Admin demoted to teacher"));
+});
+
 export {
     registerUser,
     loginUser,
@@ -348,5 +375,7 @@ export {
     getCurrentUser,
     updateAccountDetails,
     getAllTeachers,
-    makeUserAdmin
+    makeUserAdmin,
+    getAllUsers,
+    demoteAdmin
 }
