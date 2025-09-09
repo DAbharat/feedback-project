@@ -4,11 +4,10 @@ import { getFilteredFeedbacks, getFeedbackStats, getFeedbackTrends, getTopKeywor
 import { isTeacherOrAdmin } from "../middlewares/role.middlewares.js";
 
 const router = Router();
-
-router.get("/feedbacks", verifyJWT, isTeacherOrAdmin, getFilteredFeedbacks);
-router.get("/feedbacks/stats", verifyJWT, isTeacherOrAdmin, getFeedbackStats);
-router.get("/feedbacks/trends", verifyJWT, isTeacherOrAdmin, getFeedbackTrends);
-router.get("/feedbacks/top-keywords", verifyJWT, isTeacherOrAdmin, getTopKeywords);
-router.get("/feedbacks/status", verifyJWT, isTeacherOrAdmin, getFeedbackByStatus);
+router.route("/feedbacks").get(verifyJWT, isTeacherOrAdmin, getFilteredFeedbacks);
+router.route("/feedbacks/stats").get(verifyJWT, isTeacherOrAdmin, getFeedbackStats);
+router.route("/feedbacks/trends").get(verifyJWT, isTeacherOrAdmin, getFeedbackTrends);
+router.route("/feedbacks/top-keywords").get(verifyJWT, isTeacherOrAdmin, getTopKeywords);
+router.route("/feedbacks/status").get(verifyJWT, isTeacherOrAdmin, getFeedbackByStatus);
 
 export default router;

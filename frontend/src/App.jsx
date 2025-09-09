@@ -10,6 +10,9 @@ import RegisterPage from "./pages/RegisterPage.jsx";
 import NotificationPage from "./pages/NotificationPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import AdminUserTable from "./pages/AdminUserTable.jsx";
+import AdminFormsList from "./pages/AdminFormsList.jsx";
+import AdminCreateForm from "./pages/AdminCreateForm.jsx";
+import AdminFeedbackResponses from "./pages/AdminFeedbackResponses.jsx";
 import Navbar from "./components/common/Navbar.jsx";
 
 function App() {
@@ -27,6 +30,9 @@ function App() {
           <Route path="/notifications" element={<NotificationPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/admin/users" element={<AdminUserTable />} />
+          <Route path="/admin/forms" element={<AdminFormsList />} />
+          <Route path="/admin/forms/create-form" element={<AdminCreateForm />} />
+          <Route path="/admin/forms/:id/responses" element={<AdminFeedbackResponses />} />
         </Routes>
       </Layout>
     </Router>

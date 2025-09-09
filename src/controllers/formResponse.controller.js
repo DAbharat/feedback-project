@@ -66,10 +66,54 @@ const aggregateFormResponses = asyncHandler(async (req, res) => {
 	res.json(new ApiResponse(200, analytics, "Form response analytics"));
 });
 
+const getAllResponses = asyncHandler(async (req, res) => {
+	const { formId, studentId, page = 1, limit = 20 } = req.query;
+	const filter = {};
+	if (formId) filter.formId = formId;
+	if (studentId) filter.studentId = studentId;
+
+	const skip = (parseInt(page) - 1) * parseInt(limit);
+	const responses = await FormResponse.find(filter)
+		.populate("formId", "title")
+		.populate("studentId", "fullName email username")
+		.skip(skip)
+		.limit(parseInt(limit));
+	const total = await FormResponse.countDocuments(filter);
+
+	res.json({
+		success: true,
+		data: responses,
+		page: parseInt(page),
+		limit: parseInt(limit),
+		totalPages: Math.ceil(total / limit),
+		totalItems: total
+	});
+});
+
+const exportResponsesCSV = asyncHandler(async (req, res) => {
+	const { formId } = req.query;
+	const filter = {};
+	if (formId) filter.formId = formId;
+	const responses = await FormResponse.find(filter)
+		.populate("formId", "title")
+		.populate("studentId", "fullName email username");
+
+	let csv = "Form Title,Student Name,Student Email,Question,Rating,Comment\n";
+	responses.forEach(resp => {
+		resp.rating.forEach(q => {
+			csv += `"${resp.formId.title}","${resp.studentId.fullName}","${resp.studentId.email}","${q.questionText}",${q.rating},"${resp.comment || ''}"\n`;
+		});
+	});
+	res.header("Content-Type", "text/csv");
+	res.attachment("responses.csv");
+	return res.send(csv);
+});
 
 export {
 	submitFormResponse,
 	getResponsesForForm,
 	getFormResponseById,
-	aggregateFormResponses
+	aggregateFormResponses,
+	getAllResponses,
+	exportResponsesCSV
 };

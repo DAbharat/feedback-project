@@ -32,7 +32,7 @@ const formSchema = new mongoose.Schema({
   ],
 
   targetCourse: String, 
-  targetYear: Number,   
+  targetYear: String,   
   deadline: Date, 
 
   isActive: {

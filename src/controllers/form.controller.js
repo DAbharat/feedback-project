@@ -2,9 +2,11 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { Form } from "../models/form.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import logger from "../utils/logger.js";
 
 
 const createForm = asyncHandler(async (req, res) => {
+    logger.info(`Creating form with data: ${JSON.stringify(req.body)}`);
     const { title, description, teacherId, questions, targetCourse, targetYear, deadline, isActive } = req.body;
     if (!title || !teacherId || !questions || questions.length === 0) {
         throw new ApiError(400, "Title, teacher, and questions are required");
