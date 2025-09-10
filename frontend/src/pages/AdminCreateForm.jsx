@@ -7,30 +7,64 @@ function AdminCreateForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const defaultQuestion = { text: "", type: "rating", scale: 5 };
-  const [questions, setQuestions] = useState([ { ...defaultQuestion } ]);
-  const [targetCourse, setTargetCourse] = useState("");
-  const [targetYear, setTargetYear] = useState("");
+  const [questions, setQuestions] = useState([{ ...defaultQuestion }]);
+  const [course, setCourse] = useState("");
+  const [specialization, setSpecialization] = useState("");
+  const [year, setYear] = useState("");
+  const [semester, setSemester] = useState("");
   const [deadline, setDeadline] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-
   const handleQuestionChange = (idx, field, value) => {
     const updated = questions.map((q, i) =>
-      i === idx ? { ...defaultQuestion, ...q, [field]: value } : { ...defaultQuestion, ...q }
+      i === idx
+        ? { ...defaultQuestion, ...q, [field]: value }
+        : { ...defaultQuestion, ...q }
     );
     setQuestions(updated);
   };
 
-  const addQuestion = () => setQuestions([...questions, { ...defaultQuestion }]);
-  const removeQuestion = idx => {
-    const filtered = questions.filter((_, i) => i !== idx).map(q => ({ ...defaultQuestion, ...q }));
-    setQuestions(filtered.length ? filtered : [ { ...defaultQuestion } ]);
+  const addQuestion = () =>
+    setQuestions([...questions, { ...defaultQuestion }]);
+  const removeQuestion = (idx) => {
+    const filtered = questions
+      .filter((_, i) => i !== idx)
+      .map((q) => ({ ...defaultQuestion, ...q }));
+    setQuestions(filtered.length ? filtered : [{ ...defaultQuestion }]);
   };
 
-  const handleSubmit = async e => {
+  const courseOptions = ["BTech", "BBA", "BCA"];
+  const specializationOptions = {
+    BTech: ["CSE", "ME", "CE"],
+    BBA: ["IIFSB", "GEN", "DM"],
+    BCA: ["GEN", "DS"]
+  };
+  const yearOptions =
+    course === "BTech"
+      ? ["First", "Second", "Third", "Fourth"]
+      : course === "BBA" || course === "BCA"
+        ? ["First", "Second", "Third"]
+        : [];
+  const semesterOptions =
+    course === "BTech"
+      ? [
+          "First",
+          "Second",
+          "Third",
+          "Fourth",
+          "Fifth",
+          "Sixth",
+          "Seventh",
+          "Eighth",
+        ]
+      : course === "BBA" || course === "BCA"
+        ? ["First", "Second", "Third", "Fourth", "Fifth", "Sixth"]
+        : [];
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -41,21 +75,27 @@ function AdminCreateForm() {
         title,
         description,
         teacherId: user._id,
-  questions: questions.filter(q => q.text && q.text.trim()).map(q => ({ ...defaultQuestion, ...q })),
-        targetCourse,
-        targetYear,
+        questions: questions
+          .filter((q) => q.text && q.text.trim())
+          .map((q) => ({ ...defaultQuestion, ...q })),
+        course,
+        specialization,
+        year,
+        semester,
         deadline,
-        isActive
+        isActive,
       };
       await axios.post("/api/v1/forms/create-form", body, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       setSuccess("Form created successfully!");
       setTitle("");
       setDescription("");
       setQuestions([{ questionText: "" }]);
-      setTargetCourse("");
-      setTargetYear("");
+      setCourse("");
+      setSpecialization("");
+      setSemester("");
+      setYear("");
       setDeadline("");
       setIsActive(true);
     } catch (err) {
@@ -65,7 +105,8 @@ function AdminCreateForm() {
     }
   };
 
-  if (!user || (user.role !== "admin" && user.role !== "teacher")) return <div>Access denied.</div>;
+  if (!user || (user.role !== "admin" && user.role !== "teacher"))
+    return <div>Access denied.</div>;
 
   return (
     <div className="max-w-2xl mx-auto mt-8 p-4 border rounded">
@@ -76,14 +117,14 @@ function AdminCreateForm() {
           type="text"
           placeholder="Form Title"
           value={title}
-          onChange={e => setTitle(e.target.value)}
+          onChange={(e) => setTitle(e.target.value)}
           required
         />
         <textarea
           className="border p-2 w-full"
           placeholder="Description (optional)"
           value={description}
-          onChange={e => setDescription(e.target.value)}
+          onChange={(e) => setDescription(e.target.value)}
         />
         <div>
           <label className="font-semibold">Questions:</label>
@@ -94,13 +135,17 @@ function AdminCreateForm() {
                 type="text"
                 placeholder={`Question ${idx + 1}`}
                 value={q.text ?? ""}
-                onChange={e => handleQuestionChange(idx, "text", e.target.value)}
+                onChange={(e) =>
+                  handleQuestionChange(idx, "text", e.target.value)
+                }
                 required
               />
               <select
                 className="border p-2"
                 value={q.type ?? "rating"}
-                onChange={e => handleQuestionChange(idx, "type", e.target.value)}
+                onChange={(e) =>
+                  handleQuestionChange(idx, "type", e.target.value)
+                }
               >
                 <option value="rating">Rating</option>
               </select>
@@ -110,46 +155,115 @@ function AdminCreateForm() {
                 min={2}
                 max={10}
                 value={q.scale ?? 5}
-                onChange={e => handleQuestionChange(idx, "scale", Number(e.target.value))}
+                onChange={(e) =>
+                  handleQuestionChange(idx, "scale", Number(e.target.value))
+                }
                 required
               />
               {questions.length > 1 && (
-                <button type="button" className="bg-red-500 text-white px-2 rounded" onClick={() => removeQuestion(idx)}>
+                <button
+                  type="button"
+                  className="bg-red-500 text-white px-2 rounded"
+                  onClick={() => removeQuestion(idx)}
+                >
                   Remove
                 </button>
               )}
             </div>
           ))}
-          <button type="button" className="bg-blue-500 text-white px-3 py-1 rounded" onClick={addQuestion}>
+          <button
+            type="button"
+            className="bg-blue-500 text-white px-3 py-1 rounded"
+            onClick={addQuestion}
+          >
             Add Question
           </button>
         </div>
-        <input
-          className="border p-2 w-full"
-          type="text"
-          placeholder="Target Course (optional)"
-          value={targetCourse}
-          onChange={e => setTargetCourse(e.target.value)}
-        />
-        <input
-          className="border p-2 w-full"
-          type="text"
-          placeholder="Target Year (optional)"
-          value={targetYear}
-          onChange={e => setTargetYear(e.target.value)}
-        />
+        <div>
+          <label className="font-semibold">Course:</label>
+          <select
+            className="border p-2 w-full"
+            value={course}
+            onChange={(e) => {
+              setCourse(e.target.value);
+              setSpecialization("");
+              setYear("");
+              setSemester("");
+            }}
+            required
+          >
+            <option value="">Select Course</option>
+            {courseOptions.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+        {(course === "BBA" || course === "BCA" || course === "BTech") && (
+          <div>
+            <label className="font-semibold">Specialization:</label>
+            <select
+              className="border p-2 w-full"
+              value={specialization}
+              onChange={(e) => setSpecialization(e.target.value)}
+              required
+            >
+              <option value="">Select Specialization</option>
+              {specializationOptions[course].map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div>
+          <label className="font-semibold">Year:</label>
+          <select
+            className="border p-2 w-full"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            required
+            disabled={!course}
+          >
+            <option value="">Select Year</option>
+            {yearOptions.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="font-semibold">Semester:</label>
+          <select
+            className="border p-2 w-full"
+            value={semester}
+            onChange={(e) => setSemester(e.target.value)}
+            required
+            disabled={!course}
+          >
+            <option value="">Select Semester</option>
+            {semesterOptions.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
         <input
           className="border p-2 w-full"
           type="date"
           placeholder="Deadline (optional)"
           value={deadline}
-          onChange={e => setDeadline(e.target.value)}
+          onChange={(e) => setDeadline(e.target.value)}
         />
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
             checked={isActive}
-            onChange={e => setIsActive(e.target.checked)}
+            onChange={(e) => setIsActive(e.target.checked)}
             id="isActive"
           />
           <label htmlFor="isActive">Active</label>

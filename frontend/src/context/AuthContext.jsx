@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
     return stored ? JSON.parse(stored) : null;
   });
 
+
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
@@ -16,6 +17,26 @@ export function AuthProvider({ children }) {
       localStorage.removeItem("user");
     }
   }, [user]);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const res = await axios.get("/api/v1/users/current-user", {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        });
+        if (res.data?.data) setUser(res.data.data);
+      } catch (err) {
+        setUser(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      }
+    };
+    fetchProfile();
+    // eslint-disable-next-line
+  }, []);
 
   const login = (userData) => setUser(userData);
   const logout = async () => {

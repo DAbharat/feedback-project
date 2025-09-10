@@ -7,7 +7,7 @@ import logger from "../utils/logger.js";
 
 const createForm = asyncHandler(async (req, res) => {
     logger.info(`Creating form with data: ${JSON.stringify(req.body)}`);
-    const { title, description, teacherId, questions, targetCourse, targetYear, deadline, isActive } = req.body;
+    const { title, description, teacherId, questions, course, specialization, year, deadline, isActive } = req.body;
     if (!title || !teacherId || !questions || questions.length === 0) {
         throw new ApiError(400, "Title, teacher, and questions are required");
     }
@@ -16,8 +16,9 @@ const createForm = asyncHandler(async (req, res) => {
         description,
         teacherId,
         questions,
-        targetCourse,
-        targetYear,
+        course,
+        specialization,
+        year,
         deadline,
         isActive: isActive ?? false,
         createdBy: (teacherId || adminId)
@@ -27,12 +28,22 @@ const createForm = asyncHandler(async (req, res) => {
 });
 
 const getAllForms = asyncHandler(async (req, res) => {
+    console.log(req.user.course, req.user.specialization, req.user.semester, req.user.year);
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const forms = await Form.find().skip(skip).limit(limit);
-    const total = await Form.countDocuments();
+    let filter = {};
+    if (req.user.role === "student") {
+        filter.isActive = true;
+        filter.course = req.user.course;
+        filter.specialization = req.user.specialization;
+        filter.semester = req.user.semester;
+        filter.year = req.user.year;
+    }
+
+    const forms = await Form.find(filter).skip(skip).limit(limit);
+    const total = await Form.countDocuments(filter);
 
     res.json({
         success: true,

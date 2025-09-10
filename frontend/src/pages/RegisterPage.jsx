@@ -2,23 +2,48 @@ import { useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 
+
 function RegisterPage() {
   const [form, setForm] = useState({
     username: "",
     fullName: "",
     email: "",
     password: "",
-    role: "student", 
+    role: "student",
     section: "",
     course: "",
+    specialization: "",
+    year: "",
     semester: "",
   });
   const [idCard, setIdCard] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const navigate = useNavigate();
 
+  const courseOptions = ["BTech", "BBA", "BCA"];
+  const specializationOptions = {
+    BTech: ["CSE", "ME", "CE"],
+    BBA: ["IIFSB", "GEN", "DM"],
+    BCA: ["GEN", "DS"]
+  };
+  const yearOptions = form.course === "BTech"
+    ? ["First", "Second", "Third", "Fourth"]
+    : (form.course === "BBA" || form.course === "BCA")
+      ? ["First", "Second", "Third"]
+      : [];
+  const semesterOptions = form.course === "BTech"
+    ? ["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth"]
+    : (form.course === "BBA" || form.course === "BCA")
+      ? ["First", "Second", "Third", "Fourth", "Fifth", "Sixth"]
+      : [];
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "course") {
+      setForm(f => ({ ...f, course: value, specialization: "", year: "", semester: "" }));
+    } else {
+      setForm(f => ({ ...f, [name]: value }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -59,9 +84,76 @@ function RegisterPage() {
       </select>
       {form.role === "student" && (
         <>
-          <input name="section" value={form.section} onChange={handleChange} placeholder="Section" className="border p-2" required />
-          <input name="course" value={form.course} onChange={handleChange} placeholder="Course" className="border p-2" required />
-          <input name="semester" value={form.semester} onChange={handleChange} placeholder="Semester" className="border p-2" required />
+          <label className="font-semibold">Section:</label>
+          <select name="section" value={form.section} onChange={handleChange} className="border p-2" required>
+            <option value="">Select Section</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+          </select>
+          <div>
+            <label className="font-semibold">Course:</label>
+            <select
+              name="course"
+              className="border p-2 w-full"
+              value={form.course}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Course</option>
+              {courseOptions.map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          </div>
+          {(form.course === "BBA" || form.course === "BCA" || form.course === "BTech") && (
+            <div>
+              <label className="font-semibold">Specialization:</label>
+              <select
+                name="specialization"
+                className="border p-2 w-full"
+                value={form.specialization}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Specialization</option>
+                {specializationOptions[form.course].map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div>
+            <label className="font-semibold">Year:</label>
+            <select
+              name="year"
+              className="border p-2 w-full"
+              value={form.year}
+              onChange={handleChange}
+              required
+              disabled={!form.course}
+            >
+              <option value="">Select Year</option>
+              {yearOptions.map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="font-semibold">Semester:</label>
+            <select
+              name="semester"
+              className="border p-2 w-full"
+              value={form.semester}
+              onChange={handleChange}
+              required
+              disabled={!form.course}
+            >
+              <option value="">Select Semester</option>
+              {semesterOptions.map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          </div>
         </>
       )}
       <label>

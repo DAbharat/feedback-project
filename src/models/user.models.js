@@ -50,6 +50,18 @@ const userSchema = new mongoose.Schema(
                 return this.role === 'student';
             }
         },
+        specialization: {
+            type: String,
+            required: function () {
+                return this.role === 'student';
+            }
+        },
+        year: {
+            type: String,
+            required: function () {
+                return this.role === 'student';
+            }
+        },
         semester: {
             type: String,
             required: function () {

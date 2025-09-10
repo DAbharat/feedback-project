@@ -19,7 +19,7 @@ function Navbar() {
       <div className="flex-1 flex justify-center gap-8 text-lg font-semibold">
         <Link to="/">Home</Link>
         <Link to="/feedback">Feedback</Link>
-        <Link to="/form">Form</Link>
+        <Link to="/forms">Forms</Link>
       </div>
       {/* Profile icon on right */}
       <div className="absolute right-6 flex items-center gap-4">

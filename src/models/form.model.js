@@ -31,8 +31,10 @@ const formSchema = new mongoose.Schema({
     }
   ],
 
-  targetCourse: String, 
-  targetYear: String,   
+  course: String, 
+  specialization: String,
+  semester: String,
+  year: String,   
   deadline: Date, 
 
   isActive: {

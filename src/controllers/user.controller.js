@@ -34,6 +34,8 @@ const registerUser = asyncHandler(async (req, res) => {
     const email = req.body.email?.trim();
     const password = req.body.password?.trim();
     const role = req.body.role?.trim() || "student";
+    const year = req.body.year?.trim();
+    const specialization = req.body.specialization?.trim();
     const section = req.body.section?.trim();
     const course = req.body.course?.trim();
     const semester = req.body.semester?.trim();
@@ -42,8 +44,8 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All fields are required");
     }
 
-    if (role === "student" && ([section, course, semester].some(field => !field || field === ""))) {
-        throw new ApiError(400, "Section, course, and semester are required for students");
+    if (role === "student" && ([section, course, semester, year, specialization].some(field => !field || field === ""))) {
+        throw new ApiError(400, "Section, course, semester, year, and specialization are required for students");
     }
 
     const existedUser = await User.findOne({
@@ -84,8 +86,10 @@ const registerUser = asyncHandler(async (req, res) => {
             idCard: idCard.url,
             profileImage: profileImage ? profileImage.url : undefined,
             role,
+            year: role === "student" ? year : undefined,
             semester: role === "student" ? semester : undefined,
             course: role === "student" ? course : undefined,
+            specialization: role === "student" ? specialization : undefined,
             section: role === "student" ? section : undefined
         });
 
