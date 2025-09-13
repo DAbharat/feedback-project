@@ -1,3 +1,12 @@
+// Mark all notifications as read for a user
+const markAllNotificationsRead = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+    if (req.user._id.toString() !== userId) {
+        throw new ApiError(403, "Access denied: not the recipient");
+    }
+    await Notification.updateMany({ recipient: userId, isRead: false }, { $set: { isRead: true } });
+    res.json(new ApiResponse(200, null, "All notifications marked as read"));
+});
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { Notification } from "../models/notification.models.js";
@@ -65,4 +74,5 @@ export {
     getNotificationsForUser,
     markNotificationRead,
     deleteNotification
+    ,markAllNotificationsRead
 }

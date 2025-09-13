@@ -1,3 +1,46 @@
+import { Notification } from "../models/notification.models.js";
+// Admin marks feedback as read
+const markFeedbackAsRead = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const feedback = await Feedback.findById(id);
+    if (!feedback) throw new ApiError(404, "Feedback not found");
+    if (feedback.isReadByAdmin) {
+        return res.status(200).json(new ApiResponse(200, feedback, "Feedback already marked as read"));
+    }
+    feedback.isReadByAdmin = true;
+    feedback.status = "reviewed";
+    await feedback.save();
+    // Notify student
+    await Notification.create({
+        recipient: feedback.studentId,
+        type: "feedbackChecked",
+        message: "Your feedback has been reviewed by the admin.",
+        relatedId: feedback._id,
+        relatedModel: "Feedback"
+    });
+    res.status(200).json(new ApiResponse(200, feedback, "Feedback marked as read and student notified"));
+});
+
+// Admin replies to feedback
+const replyToFeedback = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { reply } = req.body;
+    if (!reply) throw new ApiError(400, "Reply message is required");
+    const feedback = await Feedback.findById(id);
+    if (!feedback) throw new ApiError(404, "Feedback not found");
+    feedback.adminReply = reply;
+    feedback.status = "resolved";
+    await feedback.save();
+    // Notify student
+    await Notification.create({
+        recipient: feedback.studentId,
+        type: "feedbackChecked",
+        message: `Admin replied to your feedback: ${reply}`,
+        relatedId: feedback._id,
+        relatedModel: "Feedback"
+    });
+    res.status(200).json(new ApiResponse(200, feedback, "Reply sent and student notified"));
+});
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
@@ -87,6 +130,8 @@ const getFilteredFeedbacks = asyncHandler(async (req, res) => {
                     section: 1,
                     message: 1,
                     createdAt: 1,
+                    isReadByAdmin: 1,
+                    adminReply: 1,
                     student: {
                         username: 1,
                         fullName: 1,
@@ -186,6 +231,8 @@ export {
     getFeedbackByStatus,
     getAllTeachers,
     submitGeneralFeedback
+    ,markFeedbackAsRead
+    ,replyToFeedback
 };
 
 

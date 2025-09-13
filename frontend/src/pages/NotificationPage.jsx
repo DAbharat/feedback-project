@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useNotifications } from "../hooks/useNotifications";
 import axios from "axios";
 
 function NotificationPage() {
@@ -8,22 +9,22 @@ function NotificationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { user } = useAuth();
+  const { setUnreadCount } = useNotifications();
   const navigate = useNavigate();
 
   useEffect(() => {
-        if(!user) {
-            navigate("/register");
-        }
+    if (!user) {
+      navigate("/register");
+      return;
+    }
     const fetchNotifications = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`/api/v1/notifications/${user._id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
+        const res = await axios.get(`/api/v1/notifications/${user._id}?limit=100`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
         setNotifications(res.data.data || []);
+        setUnreadCount(0); // reset badge
       } catch (err) {
         setError("Failed to load notifications");
       } finally {
@@ -31,7 +32,7 @@ function NotificationPage() {
       }
     };
     fetchNotifications();
-  }, [user]);
+  }, [user, setUnreadCount, navigate]);
 
   if (loading) return <div>Loading notifications...</div>;
   if (error) return <div className="text-red-500">{error}</div>;

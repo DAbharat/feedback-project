@@ -3,6 +3,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { Form } from "../models/form.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import logger from "../utils/logger.js";
+import { User } from "../models/user.models.js";
+import { Notification } from "../models/notification.models.js";
 
 
 const createForm = asyncHandler(async (req, res) => {
@@ -25,6 +27,32 @@ const createForm = asyncHandler(async (req, res) => {
         createdBy: (teacherId || adminId)
     });
     logger.info(`Form created: ${form.id}`);
+
+    // Notify all students matching course/year/semester
+    try {
+        const studentFilter = {
+            role: "student",
+            course,
+            year,
+            semester
+        };
+        if (specialization) studentFilter.specialization = specialization;
+        const students = await User.find(studentFilter, "_id");
+        if (students.length > 0) {
+            const notifications = students.map(s => ({
+                recipient: s._id,
+                type: "formPublished",
+                message: `A new form '${title}' has been published for your course/year/semester.`,
+                relatedId: form._id,
+                relatedModel: "Form"
+            }));
+            await Notification.insertMany(notifications);
+            logger.info(`Notifications sent to ${students.length} students for form ${form.id}`);
+        }
+    } catch (err) {
+        logger.error("Failed to send notifications to students: " + err.message);
+    }
+
     res.status(201).json(new ApiResponse(201, form, "Form created successfully"));
 });
 

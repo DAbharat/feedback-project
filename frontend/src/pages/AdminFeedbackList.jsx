@@ -20,6 +20,34 @@ function AdminFeedbackList() {
   const [course, setCourse] = useState("");
   const [year, setYear] = useState("");
   const [semester, setSemester] = useState("");
+  const [replyingId, setReplyingId] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const markAsRead = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(`/api/v1/feedbacks/${id}/mark-read`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchFeedbacks();
+    } catch (err) {
+      alert("Failed to mark as read");
+    }
+  };
+
+  const sendReply = async (id) => {
+    if (!replyText.trim()) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(`/api/v1/feedbacks/${id}/reply`, { reply: replyText }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setReplyingId(null);
+      setReplyText("");
+      fetchFeedbacks();
+    } catch (err) {
+      alert("Failed to send reply");
+    }
+  };
 
   const fetchFeedbacks = async () => {
     setLoading(true);
@@ -88,11 +116,14 @@ function AdminFeedbackList() {
               <th className="p-2 border">Topic</th>
               <th className="p-2 border">Feedback</th>
               <th className="p-2 border">Date</th>
+              <th className="p-2 border">Read</th>
+              <th className="p-2 border">Reply</th>
+              <th className="p-2 border">Actions</th>
             </tr>
           </thead>
           <tbody>
             {feedbacks.length === 0 ? (
-              <tr><td colSpan={7} className="text-center p-4">No feedbacks found.</td></tr>
+              <tr><td colSpan={10} className="text-center p-4">No feedbacks found.</td></tr>
             ) : (
               feedbacks.map(fb => (
                 <tr key={fb._id}>
@@ -103,6 +134,42 @@ function AdminFeedbackList() {
                   <td className="p-2 border">{fb.topic || '-'}</td>
                   <td className="p-2 border">{fb.message}</td>
                   <td className="p-2 border">{new Date(fb.createdAt).toLocaleDateString()}</td>
+                  <td className="p-2 border">
+                    {fb.isReadByAdmin ? (
+                      <span className="text-green-600 font-semibold">Marked as Read</span>
+                    ) : (
+                      <span>No</span>
+                    )}
+                  </td>
+                  <td className="p-2 border">
+                    {fb.adminReply ? (
+                      <span className="text-green-700">{fb.adminReply}</span>
+                    ) : (
+                      replyingId === fb._id ? (
+                        <div className="flex flex-col gap-1">
+                          <input
+                            type="text"
+                            className="border p-1"
+                            value={replyText}
+                            onChange={e => setReplyText(e.target.value)}
+                            placeholder="Type reply..."
+                            disabled={fb.adminReply}
+                          />
+                          <div className="flex gap-1">
+                            <button className="bg-green-600 text-white px-2 py-1 rounded" onClick={() => sendReply(fb._id)} disabled={fb.adminReply}>Send</button>
+                            <button className="bg-gray-400 text-white px-2 py-1 rounded" onClick={() => { setReplyingId(null); setReplyText(""); }} disabled={fb.adminReply}>Cancel</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button className="bg-blue-500 text-white px-2 py-1 rounded" onClick={() => { setReplyingId(fb._id); setReplyText(""); }} disabled={fb.adminReply}>Reply</button>
+                      )
+                    )}
+                  </td>
+                  <td className="p-2 border">
+                    {fb.isReadByAdmin ? null : (
+                      <button className="bg-yellow-500 text-white px-2 py-1 rounded" onClick={() => markAsRead(fb._id)} disabled={fb.isReadByAdmin}>Mark as Read</button>
+                    )}
+                  </td>
                 </tr>
               ))
             )}

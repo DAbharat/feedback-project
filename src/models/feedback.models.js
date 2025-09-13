@@ -48,6 +48,13 @@ const feedbackSchema = new mongoose.Schema({
         type: String,
         enum: ["pending", "reviewed", "resolved"],
         default: "pending"
+    },
+    isReadByAdmin: {
+        type: Boolean,
+        default: false
+    },
+    adminReply: {
+        type: String
     }
 },
     {

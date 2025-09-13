@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
-import { deleteNotification, getNotificationsForUser, markNotificationRead, sendNotification } from "../controllers/notification.controller.js";
+import { deleteNotification, getNotificationsForUser, markNotificationRead, sendNotification, markAllNotificationsRead } from "../controllers/notification.controller.js";
 import { isAdmin, isTeacherOrAdmin } from "../middlewares/role.middlewares.js";
 import { ApiError } from "../utils/ApiError.js";
 
@@ -16,6 +16,7 @@ const isRecipient = (req, res, next) => {
 router.route("/sendnotification").post(verifyJWT, isTeacherOrAdmin, sendNotification);
 router.route("/:userId").get(verifyJWT, isRecipient, getNotificationsForUser);
 router.route("/notification-read/:notificationId").post(verifyJWT, isRecipient, markNotificationRead);
+router.route("/:userId/mark-all-read").post(verifyJWT, isRecipient, markAllNotificationsRead);
 router.route("/notification-delete/:notificationId").delete(verifyJWT, isRecipient, deleteNotification);
 
 
