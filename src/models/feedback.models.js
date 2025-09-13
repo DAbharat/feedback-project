@@ -10,7 +10,7 @@ const feedbackSchema = new mongoose.Schema({
     teacherId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
+        //required: true
     },
     course: {
         type: String,
@@ -34,11 +34,11 @@ const feedbackSchema = new mongoose.Schema({
     },
     teacherName: {
         type: String,
-        required: true
+        //required: true
     },
     teacherSubject: {
         type: String,
-        required: true
+        //required: true
     },
     message: {
         type: String,

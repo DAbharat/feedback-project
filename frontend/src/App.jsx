@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/common/Layout";
 import HomePage from "./pages/HomePage.jsx";
 import FeedbackPage from "./pages/FeedbackPage.jsx";
+import FeedbackSubmittedPage from "./pages/FeedbackSubmittedPage.jsx";
+import { useAuth } from "./context/AuthContext";
 import FormPage from "./pages/FormPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import LoginPage from "./pages/LoginPage";
@@ -12,6 +14,7 @@ import AdminUserTable from "./pages/AdminUserTable.jsx";
 import AdminFormsList from "./pages/AdminFormsList.jsx";
 import AdminCreateForm from "./pages/AdminCreateForm.jsx";
 import AdminFeedbackResponses from "./pages/AdminFeedbackResponses.jsx";
+import AdminFeedbackList from "./pages/AdminFeedbackList.jsx";
 import FormSubmissionPage from "./pages/FormSubmissionPage.jsx";
 import Navbar from "./components/common/Navbar.jsx";
 
@@ -20,12 +23,14 @@ import Navbar from "./components/common/Navbar.jsx";
 
 
 function App() {
+  const { user } = useAuth();
   return (
     <Router>
       <Layout>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/feedback" element={<FeedbackPage />} />
+          <Route path="/feedback" element={user && user.role === "admin" ? <AdminFeedbackList /> : <FeedbackPage />} />
+          <Route path="/feedback/submitresponse" element={<FeedbackSubmittedPage />} />
           <Route path="/forms" element={<FormPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -36,6 +41,7 @@ function App() {
           <Route path="/admin/forms" element={<AdminFormsList />} />
           <Route path="/admin/forms/create-form" element={<AdminCreateForm />} />
           <Route path="/admin/forms/:id/responses" element={<AdminFeedbackResponses />} />
+          {/* <Route path="/admin/feedbacks" element={<AdminFeedbackList />} /> */}
           <Route path="/admin/form-responses" element={<AdminFeedbackResponses />} />
           <Route path="/admin/form-responses/responses/all" element={<AdminFeedbackResponses />} />
           <Route path="/form/:id" element={<FormSubmissionPage />} />
