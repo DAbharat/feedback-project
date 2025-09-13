@@ -7,7 +7,7 @@ import logger from "../utils/logger.js";
 
 const createForm = asyncHandler(async (req, res) => {
     logger.info(`Creating form with data: ${JSON.stringify(req.body)}`);
-    const { title, description, teacherId, questions, course, specialization, year, deadline, isActive } = req.body;
+    const { title, description, teacherId, questions, course, specialization, year, semester, deadline, isActive } = req.body;
     if (!title || !teacherId || !questions || questions.length === 0) {
         throw new ApiError(400, "Title, teacher, and questions are required");
     }
@@ -19,6 +19,7 @@ const createForm = asyncHandler(async (req, res) => {
         course,
         specialization,
         year,
+        semester,
         deadline,
         isActive: isActive ?? false,
         createdBy: (teacherId || adminId)
@@ -37,12 +38,18 @@ const getAllForms = asyncHandler(async (req, res) => {
     if (req.user.role === "student") {
         filter.isActive = true;
         filter.course = req.user.course;
-        filter.specialization = req.user.specialization;
+        if (req.user.specialization) {
+            filter.$or = [
+                { specialization: req.user.specialization },
+                { specialization: { $in: [null, '', 'ALL'] } }
+            ];
+        }
         filter.semester = req.user.semester;
         filter.year = req.user.year;
     }
 
     const forms = await Form.find(filter).skip(skip).limit(limit);
+    console.log('Forms found:', forms);
     const total = await Form.countDocuments(filter);
 
     res.json({

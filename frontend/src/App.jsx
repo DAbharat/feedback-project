@@ -15,6 +15,10 @@ import AdminFeedbackResponses from "./pages/AdminFeedbackResponses.jsx";
 import FormSubmissionPage from "./pages/FormSubmissionPage.jsx";
 import Navbar from "./components/common/Navbar.jsx";
 
+
+
+
+
 function App() {
   return (
     <Router>
@@ -32,6 +36,8 @@ function App() {
           <Route path="/admin/forms" element={<AdminFormsList />} />
           <Route path="/admin/forms/create-form" element={<AdminCreateForm />} />
           <Route path="/admin/forms/:id/responses" element={<AdminFeedbackResponses />} />
+          <Route path="/admin/form-responses" element={<AdminFeedbackResponses />} />
+          <Route path="/admin/form-responses/responses/all" element={<AdminFeedbackResponses />} />
           <Route path="/form/:id" element={<FormSubmissionPage />} />
         </Routes>
       </Layout>

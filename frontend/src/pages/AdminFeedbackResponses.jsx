@@ -1,16 +1,37 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
+
 function AdminFeedbackResponses() {
   const { user } = useAuth();
   const [responses, setResponses] = useState([]);
+  const [analytics, setAnalytics] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [formId, setFormId] = useState("");
   const [studentId, setStudentId] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [forms, setForms] = useState([]);
+  // Fetch all forms for dropdown
+  useEffect(() => {
+    const fetchForms = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get("/api/v1/forms", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setForms(res.data.data || []);
+      } catch (err) {
+        // ignore error
+      }
+    };
+    if (user && (user.role === "admin" || user.role === "teacher")) {
+      fetchForms();
+    }
+  }, [user]);
 
   const fetchResponses = async () => {
     setLoading(true);
@@ -18,12 +39,22 @@ function AdminFeedbackResponses() {
     try {
       const token = localStorage.getItem("token");
       const params = { page, formId, studentId };
-      const res = await axios.get("/api/v1/forms/responses", {
+      const res = await axios.get("/api/v1/form-responses/responses/all", {
         headers: { Authorization: `Bearer ${token}` },
         params,
       });
       setResponses(res.data.data || []);
       setTotalPages(res.data.totalPages || 1);
+
+      // Fetch analytics if formId is set
+      if (formId) {
+        const analyticsRes = await axios.get(`/api/v1/form-responses/responses/analytics/${formId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAnalytics(analyticsRes.data.data || []);
+      } else {
+        setAnalytics([]);
+      }
     } catch (err) {
       setError("Failed to load responses");
     } finally {
@@ -65,14 +96,19 @@ function AdminFeedbackResponses() {
   return (
     <div className="max-w-5xl mx-auto mt-8 p-4 border rounded">
       <h2 className="text-xl font-bold mb-4">Feedback Responses</h2>
-      <div className="flex gap-4 mb-4">
-        <input
-          className="border p-2"
-          type="text"
-          placeholder="Filter by Form ID"
+      <div className="flex gap-4 mb-4 items-center">
+        <select
+          className="border p-2 min-w-[200px]"
           value={formId}
           onChange={e => setFormId(e.target.value)}
-        />
+        >
+          <option value="">Select Form</option>
+          {forms.map(form => (
+            <option key={form._id} value={form._id}>
+              {form.title} ({form.course}, {form.year}, Sem {form.semester}{form.specialization ? `, ${form.specialization}` : ""})
+            </option>
+          ))}
+        </select>
         <input
           className="border p-2"
           type="text"
@@ -88,6 +124,31 @@ function AdminFeedbackResponses() {
         </button>
       </div>
       {error && <div className="text-red-500 mb-2">{error}</div>}
+
+      {/* Analytics Section */}
+      {analytics.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-2">Analytics (Average Rating per Question)</h3>
+          <table className="min-w-full border mb-2">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 border">Question</th>
+                <th className="p-2 border">Average Rating</th>
+                <th className="p-2 border">Responses</th>
+              </tr>
+            </thead>
+            <tbody>
+              {analytics.map((a, idx) => (
+                <tr key={idx}>
+                  <td className="p-2 border">{a._id}</td>
+                  <td className="p-2 border">{a.avgRating?.toFixed(2)}</td>
+                  <td className="p-2 border">{a.count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="min-w-full border">
           <thead>

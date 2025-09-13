@@ -12,6 +12,7 @@ function FormSubmissionPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,7 +52,7 @@ function FormSubmissionPage() {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "/api/v1/form-responses/submit",
+        "/api/v1/form-responses/submitresponse",
         {
           formId: id,
           studentId: user._id,
@@ -61,7 +62,7 @@ function FormSubmissionPage() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setSuccess("Feedback submitted successfully!");
-      setTimeout(() => navigate("/"), 1500);
+      setSubmitted(true);
     } catch (err) {
       setError(
         err.response?.data?.message || "Failed to submit feedback or already submitted."
@@ -75,6 +76,20 @@ function FormSubmissionPage() {
   if (loading && !form) return <div>Loading form...</div>;
   if (error && !form) return <div className="text-red-500">{error}</div>;
   if (!form) return null;
+  if (submitted) {
+    return (
+      <div className="max-w-md mx-auto mt-8 p-4 border rounded text-center">
+        <h2 className="text-xl font-bold mb-4 text-green-700">Form Submitted!</h2>
+        <p className="mb-4">Thank you for your feedback.</p>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={() => navigate("/")}
+        >
+          Go to Home
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto mt-8 p-4 border rounded">

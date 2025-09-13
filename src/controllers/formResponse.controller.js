@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { FormResponse } from "../models/formResponse.models.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import logger from "../utils/logger.js";
 
 
 const submitFormResponse = asyncHandler(async (req, res) => {
@@ -48,8 +49,17 @@ const aggregateFormResponses = asyncHandler(async (req, res) => {
 	const page = parseInt(req.query.page) || 1;
 	const limit = parseInt(req.query.limit) || 10;
 	const skip = (page - 1) * limit;
+	const mongoose = await import('mongoose');
+	let objectId;
+	try {
+		objectId = new mongoose.default.Types.ObjectId(formId);
+	} catch (e) {
+		logger.error(`Invalid formId for analytics: ${formId}`);
+		return res.status(400).json(new ApiResponse(400, [], "Invalid formId"));
+	}
+	logger.info(`Aggregating analytics for formId: ${formId}`);
 	const pipeline = [
-		{ $match: { formId } },
+		{ $match: { formId: objectId } },
 		{ $unwind: "$rating" },
 		{
 			$group: {
@@ -63,7 +73,8 @@ const aggregateFormResponses = asyncHandler(async (req, res) => {
 		{ $limit: limit }
 	];
 	const analytics = await FormResponse.aggregate(pipeline);
-	res.json(new ApiResponse(200, analytics, "Form response analytics"));
+	logger.info(`Analytics result for formId ${formId}: ${JSON.stringify(analytics)}`);
+	res.status(200).json(new ApiResponse(200, analytics || [], "Form response analytics"));
 });
 
 const getAllResponses = asyncHandler(async (req, res) => {
