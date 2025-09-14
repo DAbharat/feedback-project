@@ -21,6 +21,7 @@ function FeedbackPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  
   // Fetch teachers on mount
   useEffect(() => {
     const fetchTeachers = async () => {
@@ -95,31 +96,46 @@ function FeedbackPage() {
     }
   };
 
-  if (!user) return <div className="p-4">Please login to send feedback.</div>;
+  if (!user) return <div className="p-4 pt-24">Please login to send feedback.</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black flex justify-center items-center px-4" style={{height: '100vh'}}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black py-8 px-4 pt-12">
       {/* Background effects */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-20 left-20 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-20 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-600/10 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
       </div>
+      
       {/* Cyber grid pattern overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none"></div>
-      <div className="relative z-10 w-full max-w-2xl flex flex-col justify-center mx-auto">
-        <div className="backdrop-blur-lg bg-gray-900/80 border border-gray-700/50 rounded-3xl p-8 shadow-2xl shadow-black/50">
-          <h2 className="text-3xl font-black mb-6 text-center bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Send Feedback</h2>
+      <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none"></div>
+      
+      <div className="relative z-10 w-full max-w-4xl mx-auto">
+        <div className="backdrop-blur-lg bg-gray-900/80 border border-gray-700/50 rounded-3xl p-8 shadow-2xl shadow-black/50 relative">
+          {/* Floating decorative elements */}
+          <div className="absolute -top-6 -left-6 w-12 h-12 bg-purple-500/20 rounded-full blur-xl animate-pulse"></div>
+          <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-blue-500/20 rounded-full blur-lg animate-pulse animation-delay-2000"></div>
+          
+          <h2 className="text-3xl font-black mb-8 text-center bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+            Send Feedback
+          </h2>
+          
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Student name, roll no, univ roll no in one row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-1">Student Name</label>
-                <input className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400" value={user.fullName || ""} readOnly required />
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Student Name</label>
+                <input 
+                  className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200" 
+                  value={user.fullName || ""} 
+                  readOnly 
+                  required 
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-1">Roll No.</label>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Roll No.</label>
                 <input
-                  className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400"
+                  className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200"
                   type="text"
                   value={rollNo}
                   onChange={e => setRollNo(e.target.value)}
@@ -128,10 +144,10 @@ function FeedbackPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-1">University Roll No.</label>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">University Roll No.</label>
                 <div className="flex">
                   <select
-                    className="border p-2 bg-gray-800/50 text-white rounded-l min-w-[80px]"
+                    className="bg-gray-800/50 border border-gray-600/50 text-white rounded-l-xl px-3 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200"
                     value={universityRollNoPrefix}
                     onChange={e => setUniversityRollNoPrefix(e.target.value)}
                   >
@@ -140,7 +156,7 @@ function FeedbackPage() {
                     ))}
                   </select>
                   <input
-                    className="border-t border-b border-r p-2 w-full rounded-r bg-gray-800/50 border-gray-600/50 text-white placeholder-gray-400"
+                    className="flex-1 bg-gray-800/50 border border-l-0 border-gray-600/50 rounded-r-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200"
                     type="text"
                     value={universityRollNo}
                     onChange={e => {
@@ -150,28 +166,100 @@ function FeedbackPage() {
                     required
                     placeholder="Next 7 digits"
                     maxLength={7}
-                    pattern="\\d{7}"
                   />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Full University Roll No.: <span className="font-mono">{universityRollNoPrefix}{universityRollNo}</span></p>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-1">Course</label>
-                <input className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400" value={user.course || ""} readOnly required />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-1">Year</label>
-                <input className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400" value={user.year || ""} readOnly required />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-1">Semester</label>
-                <input className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400" value={user.semester || ""} readOnly required />
+                <p className="text-xs text-gray-400 mt-1">
+                  Full University Roll No.: <span className="font-mono text-purple-300">{universityRollNoPrefix}{universityRollNo}</span>
+                </p>
               </div>
             </div>
+            
+            {/* Course, year, semester in one row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Course</label>
+                <input 
+                  className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200" 
+                  value={user.course || ""} 
+                  readOnly 
+                  required 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Year</label>
+                <input 
+                  className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200" 
+                  value={user.year || ""} 
+                  readOnly 
+                  required 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Semester</label>
+                <input 
+                  className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200" 
+                  value={user.semester || ""} 
+                  readOnly 
+                  required 
+                />
+              </div>
+            </div>
+            
+            {/* Teacher selection row: dropdown (with Other) and subject */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Teacher Name (Optional)</label>
+                {teacherId === "other" ? (
+                  <input
+                    className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200"
+                    type="text"
+                    value={teacherName}
+                    onChange={e => setTeacherName(e.target.value)}
+                    placeholder="Type teacher name"
+                    onBlur={() => { if (!teacherName) setTeacherId(""); }}
+                  />
+                ) : (
+                  <select
+                    className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200"
+                    value={teacherId}
+                    onChange={e => {
+                      const id = e.target.value;
+                      setTeacherId(id);
+                      if (id === "other") {
+                        setTeacherName("");
+                      } else {
+                        const teacher = teachers.find(t => t._id === id);
+                        setTeacherName(teacher ? teacher.fullName : "");
+                      }
+                      setTeacherSubject("");
+                    }}
+                  >
+                    <option value="">-- Select Teacher --</option>
+                    {teachers.map(t => (
+                      <option key={t._id} value={t._id}>{t.fullName}</option>
+                    ))}
+                    <option value="other">Other (Type Name)</option>
+                  </select>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Subject</label>
+                <input
+                  className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  type="text"
+                  value={teacherSubject}
+                  onChange={e => setTeacherSubject(e.target.value)}
+                  required={!!teacherId || !!teacherName}
+                  disabled={!(teacherId || teacherName)}
+                  placeholder="Enter subject"
+                />
+              </div>
+            </div>
+            
             <div>
-              <label className="block text-sm font-semibold text-gray-300 mb-1">Topic</label>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">Topic</label>
               <input
-                className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400"
+                className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200"
                 type="text"
                 value={topic}
                 onChange={e => setTopic(e.target.value)}
@@ -179,58 +267,33 @@ function FeedbackPage() {
                 placeholder="Enter topic (e.g. Library, Hostel, Academics)"
               />
             </div>
-            {/* Teacher selection */}
+            
             <div>
-              <label className="block text-sm font-semibold text-gray-300 mb-1">Teacher (optional)</label>
-              <select
-                className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400"
-                value={teacherId}
-                onChange={e => {
-                  const id = e.target.value;
-                  setTeacherId(id);
-                  const teacher = teachers.find(t => t._id === id);
-                  setTeacherName(teacher ? teacher.fullName : "");
-                  setTeacherSubject("");
-                }}
-              >
-                <option value="">-- Select Teacher (or leave blank for general feedback) --</option>
-                {teachers.map(t => (
-                  <option key={t._id} value={t._id}>{t.fullName}</option>
-                ))}
-              </select>
-            </div>
-            {/* Subject selection, only if teacher is selected */}
-            {teacherId && (
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-1">Subject</label>
-                <select
-                  className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400"
-                  value={teacherSubject}
-                  onChange={e => setTeacherSubject(e.target.value)}
-                  required
-                >
-                  <option value="">-- Select Subject --</option>
-                  {(teachers.find(t => t._id === teacherId)?.subjects || []).map((subj, idx) => (
-                    <option key={idx} value={subj}>{subj}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div>
-              <label className="block text-sm font-semibold text-gray-300 mb-1">Feedback</label>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">Feedback</label>
               <textarea
-                className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400 min-h-[100px]"
+                className="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-400 min-h-[120px] resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200"
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 required
                 placeholder="Write your feedback here..."
               />
             </div>
-            {error && <div className="text-red-500 text-sm font-semibold">{error}</div>}
-            {success && <div className="text-green-500 text-sm font-semibold">{success}</div>}
+            
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                <div className="text-red-400 text-sm font-semibold">{error}</div>
+              </div>
+            )}
+            
+            {success && (
+              <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+                <div className="text-green-400 text-sm font-semibold">{success}</div>
+              </div>
+            )}
+            
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-3 px-4 rounded-xl font-semibold shadow-lg shadow-blue-500/25 hover:shadow-purple-400/40 disabled:shadow-gray-500/25 transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed relative overflow-hidden group"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-4 px-6 rounded-xl font-semibold shadow-lg shadow-blue-500/25 hover:shadow-purple-400/40 disabled:shadow-gray-500/25 transition-all duration-300 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed relative overflow-hidden group"
               disabled={loading}
             >
               <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 group-disabled:opacity-0 transition-opacity duration-300"></div>
@@ -246,7 +309,7 @@ function FeedbackPage() {
                 ) : (
                   <>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
                     <span>Send Feedback</span>
                   </>
@@ -255,9 +318,6 @@ function FeedbackPage() {
             </button>
           </form>
         </div>
-        {/* Floating decorative elements */}
-        <div className="absolute -top-6 -left-6 w-12 h-12 bg-purple-500/20 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-blue-500/20 rounded-full blur-lg animate-pulse animation-delay-2000"></div>
       </div>
     </div>
   );

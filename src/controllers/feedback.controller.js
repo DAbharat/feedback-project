@@ -86,6 +86,19 @@ const submitGeneralFeedback = asyncHandler(async (req, res) => {
     }
 
     const feedback = await Feedback.create(feedbackData);
+
+    const admins = await User.find({ role: "admin" }, { _id: 1 });
+    if (admins && admins.length > 0) {
+        const notifications = admins.map(admin => ({
+            recipient: admin._id,
+            type: "feedbackSubmitted",
+            message: `${user.fullName} submitted new feedback${teacherName ? ` for ${teacherName}` : ""}.`,
+            relatedId: feedback._id,
+            relatedModel: "Feedback"
+        }));
+        await Notification.insertMany(notifications);
+    }
+
     res.status(201).json(new ApiResponse(201, feedback, "Feedback submitted successfully"));
 });
 

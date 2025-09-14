@@ -109,175 +109,166 @@ function AdminCreateForm() {
     return <div>Access denied.</div>;
 
   return (
-    <div className="max-w-2xl mx-auto mt-8 p-4 border rounded">
-      <h2 className="text-xl font-bold mb-4">Create Feedback Form</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          className="border p-2 w-full"
-          type="text"
-          placeholder="Form Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <textarea
-          className="border p-2 w-full"
-          placeholder="Description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <div>
-          <label className="font-semibold">Questions:</label>
-          {questions.map((q, idx) => (
-            <div key={idx} className="flex gap-2 mb-2 items-center">
-              <input
-                className="border p-2 flex-1"
-                type="text"
-                placeholder={`Question ${idx + 1}`}
-                value={q.text ?? ""}
-                onChange={(e) =>
-                  handleQuestionChange(idx, "text", e.target.value)
-                }
-                required
-              />
-              <select
-                className="border p-2"
-                value={q.type ?? "rating"}
-                onChange={(e) =>
-                  handleQuestionChange(idx, "type", e.target.value)
-                }
-              >
-                <option value="rating">Rating</option>
-              </select>
-              <input
-                className="border p-2 w-20"
-                type="number"
-                min={2}
-                max={10}
-                value={q.scale ?? 5}
-                onChange={(e) =>
-                  handleQuestionChange(idx, "scale", Number(e.target.value))
-                }
-                required
-              />
-              {questions.length > 1 && (
-                <button
-                  type="button"
-                  className="bg-red-500 text-white px-2 rounded"
-                  onClick={() => removeQuestion(idx)}
-                >
-                  Remove
-                </button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            className="bg-blue-500 text-white px-3 py-1 rounded"
-            onClick={addQuestion}
-          >
-            Add Question
-          </button>
-        </div>
-        <div>
-          <label className="font-semibold">Course:</label>
-          <select
-            className="border p-2 w-full"
-            value={course}
-            onChange={(e) => {
-              setCourse(e.target.value);
-              setSpecialization("");
-              setYear("");
-              setSemester("");
-            }}
-            required
-          >
-            <option value="">Select Course</option>
-            {courseOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        </div>
-        {(course === "BBA" || course === "BCA" || course === "BTech") && (
-          <div>
-            <label className="font-semibold">Specialization:</label>
-            <select
-              className="border p-2 w-full"
-              value={specialization}
-              onChange={(e) => setSpecialization(e.target.value)}
-              required
-            >
-              <option value="">Select Specialization</option>
-              {specializationOptions[course].map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        <div>
-          <label className="font-semibold">Year:</label>
-          <select
-            className="border p-2 w-full"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            required
-            disabled={!course}
-          >
-            <option value="">Select Year</option>
-            {yearOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="font-semibold">Semester:</label>
-          <select
-            className="border p-2 w-full"
-            value={semester}
-            onChange={(e) => setSemester(e.target.value)}
-            required
-            disabled={!course}
-          >
-            <option value="">Select Semester</option>
-            {semesterOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        </div>
-        <input
-          className="border p-2 w-full"
-          type="date"
-          placeholder="Deadline (optional)"
-          value={deadline}
-          onChange={(e) => setDeadline(e.target.value)}
-        />
-        <div className="flex items-center gap-2">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black flex items-center justify-center py-8 px-2">
+      <div className="w-full max-w-2xl bg-gray-900/80 rounded-2xl shadow-2xl p-8 relative border border-gray-800">
+        <h2 className="text-3xl font-extrabold mb-8 text-center bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent drop-shadow">Create Feedback Form</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <input
-            type="checkbox"
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-            id="isActive"
+            className="border border-gray-700 bg-gray-800 text-white p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            type="text"
+            placeholder="Form Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
           />
-          <label htmlFor="isActive">Active</label>
-        </div>
-        <button
-          className="bg-green-600 text-white px-4 py-2 rounded"
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? "Creating..." : "Create Form"}
-        </button>
-        {error && <div className="text-red-500">{error}</div>}
-        {success && <div className="text-green-600">{success}</div>}
-      </form>
+          <textarea
+            className="border border-gray-700 bg-gray-800 text-white p-3 w-full rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
+            placeholder="Description (optional)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <div>
+            <label className="font-semibold text-purple-200 mb-2 block">Questions:</label>
+            {questions.map((q, idx) => (
+              <div key={idx} className="flex gap-2 mb-2 items-center">
+                <input
+                  className="border border-gray-700 bg-gray-800 text-white p-2 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  type="text"
+                  placeholder={`Question ${idx + 1}`}
+                  value={q.text ?? ""}
+                  onChange={(e) => handleQuestionChange(idx, "text", e.target.value)}
+                  required
+                />
+                <select
+                  className="border border-gray-700 bg-gray-800 text-white p-2 rounded-lg"
+                  value={q.type ?? "rating"}
+                  onChange={(e) => handleQuestionChange(idx, "type", e.target.value)}
+                >
+                  <option value="rating">Rating</option>
+                </select>
+                <input
+                  className="border border-gray-700 bg-gray-800 text-white p-2 w-20 rounded-lg"
+                  type="number"
+                  min={2}
+                  max={10}
+                  value={q.scale ?? 5}
+                  onChange={(e) => handleQuestionChange(idx, "scale", Number(e.target.value))}
+                  required
+                />
+                {questions.length > 1 && (
+                  <button
+                    type="button"
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition"
+                    onClick={() => removeQuestion(idx)}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg font-bold shadow transition"
+              onClick={addQuestion}
+            >
+              Add Question
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="font-semibold text-purple-200">Course:</label>
+              <select
+                className="border border-gray-700 bg-gray-800 text-white p-2 w-full rounded-lg"
+                value={course}
+                onChange={(e) => {
+                  setCourse(e.target.value);
+                  setSpecialization("");
+                  setYear("");
+                  setSemester("");
+                }}
+                required
+              >
+                <option value="">Select Course</option>
+                {courseOptions.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            {(course === "BBA" || course === "BCA" || course === "BTech") && (
+              <div>
+                <label className="font-semibold text-purple-200">Specialization:</label>
+                <select
+                  className="border border-gray-700 bg-gray-800 text-white p-2 w-full rounded-lg"
+                  value={specialization}
+                  onChange={(e) => setSpecialization(e.target.value)}
+                  required
+                >
+                  <option value="">Select Specialization</option>
+                  {specializationOptions[course].map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div>
+              <label className="font-semibold text-purple-200">Year:</label>
+              <select
+                className="border border-gray-700 bg-gray-800 text-white p-2 w-full rounded-lg"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                required
+                disabled={!course}
+              >
+                <option value="">Select Year</option>
+                {yearOptions.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="font-semibold text-purple-200">Semester:</label>
+              <select
+                className="border border-gray-700 bg-gray-800 text-white p-2 w-full rounded-lg"
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
+                required
+                disabled={!course}
+              >
+                <option value="">Select Semester</option>
+                {semesterOptions.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <input
+            className="border border-gray-700 bg-gray-800 text-white p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            type="date"
+            placeholder="Deadline (optional)"
+            value={deadline}
+            onChange={(e) => setDeadline(e.target.value)}
+          />
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              id="isActive"
+              className="accent-blue-600 w-5 h-5"
+            />
+            <label htmlFor="isActive" className="text-purple-200">Active</label>
+          </div>
+          <button
+            className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition text-lg"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Creating..." : "Create Form"}
+          </button>
+          {error && <div className="text-red-400 font-semibold text-center mt-2">{error}</div>}
+          {success && <div className="text-green-400 font-semibold text-center mt-2">{success}</div>}
+        </form>
+      </div>
     </div>
   );
 }

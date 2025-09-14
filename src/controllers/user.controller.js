@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
+import { extractTextFromImage } from "../utils/ocr.js";
 import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
@@ -33,7 +34,8 @@ const registerUser = asyncHandler(async (req, res) => {
     const fullName = req.body.fullName?.trim();
     const email = req.body.email?.trim();
     const password = req.body.password?.trim();
-    const role = req.body.role?.trim() || "student";
+    // Ignore frontend role, will set after OCR
+    let role = "student";
     const year = req.body.year?.trim();
     const specialization = req.body.specialization?.trim();
     const section = req.body.section?.trim();
@@ -42,10 +44,6 @@ const registerUser = asyncHandler(async (req, res) => {
 
     if ([username, fullName, email, password].some((field) => !field || field === "")) {
         throw new ApiError(400, "All fields are required");
-    }
-
-    if (role === "student" && ([section, course, semester, year, specialization].some(field => !field || field === ""))) {
-        throw new ApiError(400, "Section, course, semester, year, and specialization are required for students");
     }
 
     const existedUser = await User.findOne({
@@ -57,11 +55,27 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const idCardLocalPath = req.files?.idCard?.[0]?.path;
-
     if (!idCardLocalPath) {
         throw new ApiError(400, "ID card is required");
     }
 
+    // OCR: Extract role from ID card
+    let ocrText = "";
+    try {
+        ocrText = await extractTextFromImage(idCardLocalPath);
+    } catch (err) {
+        throw new ApiError(400, "Could not read ID card. Please upload a clear image.");
+    }
+    const ocrTextLower = ocrText.toLowerCase();
+    if (ocrTextLower.includes("student")) {
+        role = "student";
+    } else if (ocrTextLower.includes("teacher")) {
+        role = "teacher";
+    } else {
+        throw new ApiError(400, "ID card must contain the word 'student' or 'teacher'.");
+    }
+
+    // Now upload to cloudinary
     let idCard;
     try {
         idCard = await uploadOnCloudinary(idCardLocalPath);
@@ -104,14 +118,12 @@ const registerUser = asyncHandler(async (req, res) => {
             .json(new ApiResponse(200, createdUser, "User registered successfully"));
     } catch (error) {
         console.log("Error registering user: ", error);
-
         if (idCard) {
             await deleteFromCloudinary(idCard.public_id)
         }
-
         throw new ApiError(500, "Something went wrong while registering the user and images were deleted")
     }
-})
+});
 
 const loginUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body
