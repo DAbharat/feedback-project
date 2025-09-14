@@ -16,14 +16,15 @@ function FormPage() {
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      const [formsRes, submittedRes] = await Promise.all([
-        axios.get("/api/v1/forms/forms", {
+      let formsRes, submittedRes = { data: { data: [] } };
+      formsRes = await axios.get("/api/v1/forms/forms", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (user && user.role === "student") {
+        submittedRes = await axios.get("/api/v1/form-responses/submitted-forms", {
           headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get("/api/v1/form-responses/submitted-forms", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-      ]);
+        });
+      }
       setForms(formsRes.data.data || []);
       setSubmittedForms(submittedRes.data.data || []);
     } catch (err) {
@@ -33,12 +34,11 @@ function FormPage() {
     }
   };
 
-  useEffect(() => {
-    if (user) {
+    useEffect(() => {
+      // Only depend on user._id and user.role to avoid non-primitive dependency
+      if (!user) return;
       fetchForms();
-    }
-    // eslint-disable-next-line
-  }, [user]);
+    }, [user?._id, user?.role]);
 
   if (!user) return <div className="p-4">Access denied.</div>;
 

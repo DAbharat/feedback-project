@@ -1,9 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "../../hooks/useNotifications";
+import { useAuth } from "../../context/AuthContext";
 
 function Navbar() {
   const navigate = useNavigate();
   const { unreadCount, markAllAsRead } = useNotifications();
+  const auth = useAuth();
+  const user = auth && auth.user ? auth.user : null;
 
   const handleNotificationClick = () => {
     markAllAsRead();
@@ -56,18 +59,47 @@ function Navbar() {
             <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full"></div>
           </Link>
 
-          <Link 
-            to="/forms" 
-            className="group relative px-4 py-2 rounded-xl text-gray-300 hover:text-white transition-all duration-300 hover:bg-white/10 backdrop-blur-sm"
-          >
-            <div className="flex items-center space-x-2">
-              <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span className="font-semibold">Forms</span>
+          {/* Forms Dropdown for Admin */}
+          {user && user.role === "admin" ? (
+            <div className="relative group">
+              <button
+                className="group relative px-4 py-2 rounded-xl text-gray-300 hover:text-white transition-all duration-300 hover:bg-white/10 backdrop-blur-sm flex items-center space-x-2"
+              >
+                <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="font-semibold">Forms</span>
+                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              <div className="absolute left-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-xl shadow-lg z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200">
+                <button
+                  className="block w-full text-left px-4 py-3 hover:bg-gray-800 text-white rounded-t-xl"
+                  onClick={() => navigate("/admin/form-responses")}
+                >
+                  See Responses
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-3 hover:bg-gray-800 text-white rounded-b-xl"
+                  onClick={() => navigate("/admin/forms/create-form")}
+                >
+                  Create Form
+                </button>
+              </div>
             </div>
-            <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full"></div>
-          </Link>
+          ) : (
+            <Link 
+              to="/forms" 
+              className="group relative px-4 py-2 rounded-xl text-gray-300 hover:text-white transition-all duration-300 hover:bg-white/10 backdrop-blur-sm"
+            >
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="font-semibold">Forms</span>
+              </div>
+              <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full"></div>
+            </Link>
+          )}
         </div>
 
         {/* Right Side Actions */}
