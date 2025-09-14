@@ -51,7 +51,7 @@ function LoginPage() {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
 
       {/* Login Card */}
-  <div className="relative z-10 w-full max-w-md flex flex-col justify-center">
+  <div className="relative z-10 w-full max-w-lg flex flex-col justify-center">
         <div className="backdrop-blur-lg bg-gray-900/80 border border-gray-700/50 rounded-3xl p-8 shadow-2xl shadow-black/50">
           {/* Header */}
           <div className="text-center mb-8">

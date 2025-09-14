@@ -18,6 +18,13 @@ const submitFormResponse = asyncHandler(async (req, res) => {
 	res.status(201).json(new ApiResponse(201, response, "Form response submitted"));
 });
 
+const getSubmittedFormIdsForStudent = asyncHandler(async (req, res) => {
+	const studentId = req.user._id;
+	const responses = await FormResponse.find({ studentId }).select("formId");
+	const submittedFormIds = responses.map(r => r.formId.toString());
+	res.status(200).json(new ApiResponse(200, submittedFormIds, "Submitted form IDs fetched"));
+});
+
 const getResponsesForForm = asyncHandler(async (req, res) => {
 	const { formId } = req.params;
 	const page = parseInt(req.query.page) || 1;
@@ -126,5 +133,6 @@ export {
 	getFormResponseById,
 	aggregateFormResponses,
 	getAllResponses,
-	exportResponsesCSV
+	exportResponsesCSV,
+	getSubmittedFormIdsForStudent
 };
