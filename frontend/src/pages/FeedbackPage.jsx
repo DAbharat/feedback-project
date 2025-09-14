@@ -6,6 +6,10 @@ import axios from "axios";
 function FeedbackPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  // Redirect to login if not logged in
+  useEffect(() => {
+    if (!user) navigate("/register");
+  }, [user, navigate]);
   const [topic, setTopic] = useState("");
   const [message, setMessage] = useState("");
   const [rollNo, setRollNo] = useState("");

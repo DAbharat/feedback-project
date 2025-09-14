@@ -40,7 +40,10 @@ function FormPage() {
       fetchForms();
     }, [user?._id, user?.role]);
 
-  if (!user) return <div className="p-4">Access denied.</div>;
+  useEffect(() => {
+    if (!user) navigate("/register");
+  }, [user, navigate]);
+  if (!user) return null;
 
   const visibleForms = user.role === "student"
     ? forms.filter(f => f.isActive)
