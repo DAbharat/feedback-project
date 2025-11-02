@@ -11,7 +11,7 @@ Designed for **students, teachers, and admins**, it supports user authentication
 - 🔐 **JWT Authentication** — Secure login & registration  
 - 🗂️ **Dynamic Feedback Forms** — Create, submit, and view feedback and responses  
 - 🧾 **General Feedback** — Simple feedback submission and admin response  
-- 🖼️ **Profile Uploads** — File uploads via Multer (Cloudinary optional)  
+- 🖼️ **Profile Uploads** — File uploads via Multer  
 - 🔔 **Notification System** — Real-time updates for feedback and admin actions  
 - 🧰 **Admin Dashboard** — Manage users, forms, feedbacks, and notifications  
 - 🌐 **CORS & Helmet** — Secure API setup for production  
@@ -28,7 +28,7 @@ Designed for **students, teachers, and admins**, it supports user authentication
 | **Frontend** | React.js (Vite), Context API, Axios |
 | **Backend** | Node.js, Express.js, MongoDB, Mongoose |
 | **Authentication** | JWT (JSON Web Tokens) |
-| **File Storage** | Multer, optional Cloudinary integration |
+| **File Storage** | Multer, Cloudinary integration |
 | **Utilities** | Morgan, Helmet, CORS, Rate Limiter |
 | **Version Control** | Git & GitHub |
 
