@@ -253,8 +253,16 @@ function FeedbackPage() {
                   type="text"
                   value={teacherSubject}
                   onChange={e => setTeacherSubject(e.target.value)}
-                  required={!!teacherId || !!teacherName}
-                  disabled={!(teacherId || teacherName)}
+                  required={
+                    (teacherId && teacherId !== "other") ||
+                    (teacherName && teacherName.trim().length > 0)
+                  }
+                  disabled={
+                    !(
+                      (teacherId && teacherId !== "other") ||
+                      (teacherName && teacherName.trim().length > 0)
+                    )
+                  }
                   placeholder="Enter subject"
                 />
               </div>

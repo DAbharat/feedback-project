@@ -1,4 +1,10 @@
-// Mark all notifications as read for a user
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { Notification } from "../models/notification.models.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import logger from "../utils/logger.js";
+
+
 const markAllNotificationsRead = asyncHandler(async (req, res) => {
     const { userId } = req.params;
     if (req.user._id.toString() !== userId) {
@@ -7,12 +13,6 @@ const markAllNotificationsRead = asyncHandler(async (req, res) => {
     await Notification.updateMany({ recipient: userId, isRead: false }, { $set: { isRead: true } });
     res.json(new ApiResponse(200, null, "All notifications marked as read"));
 });
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { Notification } from "../models/notification.models.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import logger from "../utils/logger.js";
-
 
 const sendNotification = asyncHandler(async (req, res) => {
     const { recipient, type, message, relatedId, relatedModel } = req.body;

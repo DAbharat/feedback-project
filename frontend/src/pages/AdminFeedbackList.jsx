@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const courses = ["BTech", "BBA", "BCA"];
 const yearOptions = {
@@ -14,6 +15,7 @@ const semesterOptions = {
 
 function AdminFeedbackList() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -22,6 +24,7 @@ function AdminFeedbackList() {
   const [semester, setSemester] = useState("");
   const [replyingId, setReplyingId] = useState(null);
   const [replyText, setReplyText] = useState("");
+
   const markAsRead = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -135,7 +138,11 @@ function AdminFeedbackList() {
                 <tr><td colSpan={10} className="text-center p-8 text-gray-500 font-semibold">No feedbacks found.</td></tr>
               ) : (
                 feedbacks.map(fb => (
-                  <tr key={fb._id} className="hover:bg-gray-800/60 transition">
+                  <tr
+                    key={fb._id}
+                    className="hover:bg-gray-800/60 transition cursor-pointer" // added cursor-pointer
+                    onClick={() => navigate(`/admin/feedbacks/${fb._id}`)} // navigate on row click
+                  >
                     <td className="p-4 border-b border-gray-800 font-semibold text-white">{fb.student?.fullName || fb.studentId}</td>
                     <td className="p-4 border-b border-gray-800 text-gray-300">{fb.course}</td>
                     <td className="p-4 border-b border-gray-800 text-center">{fb.year}</td>
@@ -155,7 +162,7 @@ function AdminFeedbackList() {
                         <span className="text-green-400">{fb.adminReply}</span>
                       ) : (
                         replyingId === fb._id ? (
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-1" onClick={e => e.stopPropagation()}>
                             <input
                               type="text"
                               className="bg-gray-800/50 border border-gray-700/50 rounded-xl py-1 px-2 text-white"
@@ -165,18 +172,18 @@ function AdminFeedbackList() {
                               disabled={fb.adminReply}
                             />
                             <div className="flex gap-1">
-                              <button className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-xl font-semibold transition" onClick={() => sendReply(fb._id)} disabled={fb.adminReply}>Send</button>
-                              <button className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-xl font-semibold transition" onClick={() => { setReplyingId(null); setReplyText(""); }} disabled={fb.adminReply}>Cancel</button>
+                              <button className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-xl font-semibold transition" onClick={(e) => { e.stopPropagation(); sendReply(fb._id); }} disabled={fb.adminReply}>Send</button>
+                              <button className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-xl font-semibold transition" onClick={(e) => { e.stopPropagation(); setReplyingId(null); setReplyText(""); }} disabled={fb.adminReply}>Cancel</button>
                             </div>
                           </div>
                         ) : (
-                          <button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-3 py-1 rounded-xl font-semibold transition" onClick={() => { setReplyingId(fb._id); setReplyText(""); }} disabled={fb.adminReply}>Reply</button>
+                          <button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-3 py-1 rounded-xl font-semibold transition" onClick={(e) => { e.stopPropagation(); setReplyingId(fb._id); setReplyText(""); }} disabled={fb.adminReply}>Reply</button>
                         )
                       )}
                     </td>
                     <td className="p-4 border-b border-gray-800 text-center">
                       {fb.isReadByAdmin ? null : (
-                        <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-xl font-semibold transition" onClick={() => markAsRead(fb._id)} disabled={fb.isReadByAdmin}>Mark as Read</button>
+                        <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-xl font-semibold transition" onClick={(e) => { e.stopPropagation(); markAsRead(fb._id); }} disabled={fb.isReadByAdmin}>Mark as Read</button>
                       )}
                     </td>
                   </tr>

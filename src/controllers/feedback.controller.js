@@ -1,4 +1,15 @@
 import { Notification } from "../models/notification.models.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { User } from "../models/user.models.js";
+import { Feedback } from "../models/feedback.models.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js"
+import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
+import { isTeacher, isAdmin } from "../middlewares/role.middlewares.js";
+
+
+
 // Admin marks feedback as read
 const markFeedbackAsRead = asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -21,7 +32,6 @@ const markFeedbackAsRead = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, feedback, "Feedback marked as read and student notified"));
 });
 
-// Admin replies to feedback
 const replyToFeedback = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { reply } = req.body;
@@ -31,7 +41,6 @@ const replyToFeedback = asyncHandler(async (req, res) => {
     feedback.adminReply = reply;
     feedback.status = "resolved";
     await feedback.save();
-    // Notify student
     await Notification.create({
         recipient: feedback.studentId,
         type: "feedbackChecked",
@@ -41,14 +50,6 @@ const replyToFeedback = asyncHandler(async (req, res) => {
     });
     res.status(200).json(new ApiResponse(200, feedback, "Reply sent and student notified"));
 });
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { User } from "../models/user.models.js";
-import { Feedback } from "../models/feedback.models.js";
-import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js"
-import { ApiResponse } from "../utils/ApiResponse.js";
-import jwt from "jsonwebtoken";
-import { isTeacher, isAdmin } from "../middlewares/role.middlewares.js";
 
 const submitGeneralFeedback = asyncHandler(async (req, res) => {
     const user = req.user;
@@ -161,6 +162,29 @@ const getFilteredFeedbacks = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, feedbacks, "Filtered feedbacks"));
 });
 
+const getFeedbackById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const feedback = await Feedback.findById(id)
+    .populate("studentId", "fullName course year semester") 
+    .lean();
+
+  if (!feedback) {
+    throw new ApiError(404, "Feedback not found");
+  }
+
+  if (feedback.studentId && typeof feedback.studentId === "object") {
+    feedback.student = {
+     fullName: feedback.studentId.fullName,
+      course: feedback.studentId.course,
+      year: feedback.studentId.year,
+     semester: feedback.studentId.semester,
+    };
+    delete feedback.studentId;
+  }
+
+  res.status(200).json(new ApiResponse(200, feedback, "Feedback details"));
+});
+
 
 const getFeedbackTrends = asyncHandler(async (req, res) => {
   const pipeline = [
@@ -245,7 +269,8 @@ export {
     getAllTeachers,
     submitGeneralFeedback
     ,markFeedbackAsRead
-    ,replyToFeedback
+    ,replyToFeedback,
+    getFeedbackById
 };
 
 
