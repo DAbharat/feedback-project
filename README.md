@@ -62,7 +62,7 @@ Designed for **students, teachers, and admins**, it supports user authentication
    
 5. Run the server:
    ```bash
-   npm run start
+   npm run dev
    ```
 
 ---
