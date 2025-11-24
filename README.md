@@ -1,7 +1,7 @@
 # 💬 Feedback Management Platform
 
 A full-stack feedback collection system built using **React (Vite)**, **Express.js**, and **MongoDB**.  
-Designed for **students, teachers, and admins**, it supports user authentication, profile uploads, form-based feedback, notifications, and role-based workflows — making it ideal for institutions or organizations to manage structured feedback efficiently.
+Designed for **students, teachers, and admins**, it supports user authentication, profile uploads, form-based feedback, notifications, and role-based workflows — making it ideal for our institution to manage structured feedback efficiently.
 
 ---
 
@@ -62,7 +62,7 @@ Designed for **students, teachers, and admins**, it supports user authentication
    
 5. Run the server:
    ```bash
-   npm run start
+   npm run dev
    ```
 
 ---
