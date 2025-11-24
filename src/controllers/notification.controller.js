@@ -64,9 +64,9 @@ const deleteNotification = asyncHandler(async (req, res) => {
     if (notification.recipient.toString() !== req.user._id.toString()) {
         throw new ApiError(403, "Access denied: not the recipient");
     }
-    await notification.remove();
+    await Notification.findByIdAndDelete(notificationId);
     logger.info(`Notification deleted for user ${notification.recipient}`);
-    res.json(new ApiResponse(200, null, "Notification deleted"));
+    return res.json(new ApiResponse(200, null, "Notification deleted"));
 });
 
 export {
